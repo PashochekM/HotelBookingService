@@ -1,27 +1,21 @@
-import logging
-
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 
-from src.api.dependcencies import DBDep
+from src.api.dependcencies import FacilitiesServiceDep
 from src.schemas.facilities import FacilityAdd
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
 
 @router.get("")
 @cache(expire=10)
-async def get_facilities(db: DBDep):
-    return await db.facilities.get_all()
+async def get_facilities(facilities_service: FacilitiesServiceDep):
+    return await facilities_service.get_facilities()
 
 
 @router.post("")
-async def create_facility(db: DBDep, facility_data: FacilityAdd):
-    result = await db.facilities.add_one(facility_data)
-    await db.commit()
-    logger.info("facility_created facility_id=%s title=%s", result.id, result.title)
+async def create_facility(facilities_service: FacilitiesServiceDep, facility_data: FacilityAdd):
+    result = await facilities_service.create_facility(facility_data)
 
     # test_task.delay()
 

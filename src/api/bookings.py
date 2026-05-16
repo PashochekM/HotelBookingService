@@ -1,11 +1,7 @@
-import logging
-
 from fastapi import APIRouter, Body
 
-from src.api.dependcencies import DBDep, UserIdDep
-from src.schemas.bookings import BookingAdd, BookingRequestAdd
-
-logger = logging.getLogger(__name__)
+from src.api.dependcencies import BookingsServiceDep, UserIdDep
+from src.schemas.bookings import BookingRequestAdd
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
@@ -13,24 +9,24 @@ router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 @router.get("/me")
 async def get_own_bookings(
     user_id: UserIdDep,
-    db: DBDep,
+    bookings_service: BookingsServiceDep,
 ):
-    result = await db.bookings.get_filtered(user_id=user_id)
+    result = await bookings_service.get_own_bookings(user_id)
     return {"data": result}
 
 
 @router.get("")
 async def get_all_bookings(
-    db: DBDep,
+    bookings_service: BookingsServiceDep,
 ):
-    result = await db.bookings.get_all()
+    result = await bookings_service.get_all_bookings()
     return {"data": result}
 
 
 @router.post("")
 async def create_booking(
     user_id: UserIdDep,
-    db: DBDep,
+    bookings_service: BookingsServiceDep,
     book_data: BookingRequestAdd = Body(
         openapi_examples={
             "short_stay": {
@@ -54,17 +50,5 @@ async def create_booking(
         }
     ),
 ):
-    _room = await db.rooms.get_one(id=book_data.room_id)
-
-    _new_booking = BookingAdd(user_id=user_id, price=_room.price, **book_data.model_dump())
-    result = await db.bookings.add_booking(_new_booking)
-    await db.commit()
-    logger.info(
-        "booking_created booking_id=%s user_id=%s room_id=%s date_from=%s date_to=%s",
-        result.id,
-        user_id,
-        book_data.room_id,
-        book_data.date_from,
-        book_data.date_to,
-    )
+    result = await bookings_service.create_booking(user_id, book_data)
     return {"data": result}

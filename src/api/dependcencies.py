@@ -7,6 +7,11 @@ from pydantic import BaseModel
 from src.db import async_session_maker
 from src.exceptions import InvalidBookingDatesError, InvalidTokenError
 from src.services.auth import AuthService
+from src.services.bookings import BookingsService
+from src.services.facilities import FacilitiesService
+from src.services.hotels import HotelsService
+from src.services.images import ImagesService
+from src.services.rooms import RoomsService
 from src.utils.db_manager import DBManager
 
 
@@ -46,7 +51,7 @@ def get_token(request: Request) -> str:
 
 
 def get_current_user_id(token: str = Depends(get_token)) -> int:
-    data = AuthService().decode_auth_token(token)
+    data = AuthService.decode_auth_token(token)
     user_id = data.get("id")
     if not user_id:
         raise InvalidTokenError("Invalid token payload")
@@ -62,3 +67,35 @@ async def get_db():
 
 
 DBDep = Annotated[DBManager, Depends(get_db)]
+
+
+def get_auth_service(db: DBDep) -> AuthService:
+    return AuthService(db)
+
+
+def get_hotels_service(db: DBDep) -> HotelsService:
+    return HotelsService(db)
+
+
+def get_rooms_service(db: DBDep) -> RoomsService:
+    return RoomsService(db)
+
+
+def get_bookings_service(db: DBDep) -> BookingsService:
+    return BookingsService(db)
+
+
+def get_facilities_service(db: DBDep) -> FacilitiesService:
+    return FacilitiesService(db)
+
+
+def get_images_service() -> ImagesService:
+    return ImagesService()
+
+
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+HotelsServiceDep = Annotated[HotelsService, Depends(get_hotels_service)]
+RoomsServiceDep = Annotated[RoomsService, Depends(get_rooms_service)]
+BookingsServiceDep = Annotated[BookingsService, Depends(get_bookings_service)]
+FacilitiesServiceDep = Annotated[FacilitiesService, Depends(get_facilities_service)]
+ImagesServiceDep = Annotated[ImagesService, Depends(get_images_service)]

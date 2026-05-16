@@ -1,19 +1,15 @@
-import logging
-
 from fastapi import APIRouter, Query, Body
 from fastapi_cache.decorator import cache
 
-from src.api.dependcencies import DateRangeDep, PaginationDep, DBDep
+from src.api.dependcencies import DateRangeDep, HotelsServiceDep, PaginationDep
 from src.schemas.hotels import HotelAdd, HotelPATCH
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
 @router.post("")
 async def create_hotel(
-    db: DBDep,
+    hotels_service: HotelsServiceDep,
     hotel_data: HotelAdd = Body(
         openapi_examples={
             "1": {
@@ -27,9 +23,7 @@ async def create_hotel(
         }
     ),
 ):
-    result = await db.hotels.add_one(hotel_data)
-    await db.commit()
-    logger.info("hotel_created hotel_id=%s title=%s", result.id, result.title)
+    result = await hotels_service.create_hotel(hotel_data)
     return {"status": "ok", "data": result}
 
 
@@ -38,51 +32,44 @@ async def create_hotel(
 async def get_hotels(
     pagination: PaginationDep,
     date_range: DateRangeDep,
-    db: DBDep,
+    hotels_service: HotelsServiceDep,
     title: str | None = Query(None, description="Название отеля"),
     location: str | None = Query(None, description="Локация"),
 ):
-    per_page = pagination.per_page or 5
-    return await db.hotels.get_filtered_by_time(
+    return await hotels_service.get_hotels(
         date_from=date_range.date_from,
         date_to=date_range.date_to,
+        page=pagination.page,
+        per_page=pagination.per_page,
         location=location,
         title=title,
-        limit=per_page,
-        offset=per_page * (pagination.page - 1),
     )
 
 
 @router.get("/{hotel_id}")
 async def get_hotel(
     hotel_id: int,
-    db: DBDep,
+    hotels_service: HotelsServiceDep,
 ):
-    return await db.hotels.get_one(id=hotel_id)
+    return await hotels_service.get_hotel(hotel_id)
 
 
 @router.put("/{hotel_id}")
 async def edit_hotel(
     hotel_id: int,
     hotel_data: HotelAdd,
-    db: DBDep,
+    hotels_service: HotelsServiceDep,
 ):
-    await db.hotels.get_one(id=hotel_id)
-    await db.hotels.edit(hotel_data, id=hotel_id)
-    await db.commit()
-    logger.info("hotel_updated hotel_id=%s patch=false", hotel_id)
+    await hotels_service.edit_hotel(hotel_id, hotel_data)
     return {"status": "ok"}
 
 
 @router.delete("/{hotel_id}")
 async def delete_hotel(
     hotel_id: int,
-    db: DBDep,
+    hotels_service: HotelsServiceDep,
 ):
-    await db.hotels.get_one(id=hotel_id)
-    await db.hotels.delete(id=hotel_id)
-    await db.commit()
-    logger.info("hotel_deleted hotel_id=%s", hotel_id)
+    await hotels_service.delete_hotel(hotel_id)
     return {"status": "ok"}
 
 
@@ -90,11 +77,7 @@ async def delete_hotel(
 async def partially_edit_hotel(
     hotel_id: int,
     hotel_data: HotelPATCH,
-    db: DBDep,
+    hotels_service: HotelsServiceDep,
 ):
-    if not hotel_data.model_dump(exclude_unset=True):
-        return {"status": "ok"}
-    await db.hotels.edit(hotel_data, patch=True, id=hotel_id)
-    await db.commit()
-    logger.info("hotel_updated hotel_id=%s patch=true", hotel_id)
+    await hotels_service.partially_edit_hotel(hotel_id, hotel_data)
     return {"status": "ok"}
