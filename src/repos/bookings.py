@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 
 from sqlalchemy import select, insert
@@ -11,6 +12,8 @@ from src.repos.mappers.mappers import BookingDataMapper
 from src.repos.utils import rooms_ids_for_booking
 from src.schemas.bookings import BookingAdd, Booking
 
+logger = logging.getLogger(__name__)
+
 
 class BookingsRepository(BaseRepository):
     model = BookingsOrm
@@ -23,6 +26,7 @@ class BookingsRepository(BaseRepository):
 
     async def add_booking(self, data: BookingAdd) -> Booking:
         if data.date_to <= data.date_from:
+            logger.info("booking_invalid_dates room_id=%s date_from=%s date_to=%s", data.room_id, data.date_from, data.date_to)
             raise InvalidBookingDatesError()
 
         lock_room_query = select(RoomsOrm.id).filter_by(id=data.room_id).with_for_update()
@@ -35,6 +39,7 @@ class BookingsRepository(BaseRepository):
         rooms_ids = (await self.session.execute(query)).scalars().all()
 
         if data.room_id not in rooms_ids:
+            logger.info("booking_room_unavailable room_id=%s date_from=%s date_to=%s", data.room_id, data.date_from, data.date_to)
             raise RoomNotAvailableError()
 
         stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
@@ -44,7 +49,9 @@ class BookingsRepository(BaseRepository):
         except IntegrityError as exc:
             detail = str(exc.orig).lower()
             if "foreign key" in detail:
+                logger.warning("booking_integrity_error type=foreign_key room_id=%s user_id=%s", data.room_id, data.user_id)
                 raise RelatedObjectNotFoundError("Room or user not found") from exc
+            logger.error("booking_integrity_error type=unknown room_id=%s user_id=%s", data.room_id, data.user_id, exc_info=True)
             raise DatabaseIntegrityError() from exc
         res = result.scalars().one()
         return self.mapper.map_to_domain_entity(res)

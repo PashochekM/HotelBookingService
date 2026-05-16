@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy.exc import IntegrityError
 
 from src.exceptions import DatabaseIntegrityError, ObjectAlreadyExistsError, RelatedObjectNotFoundError
@@ -6,6 +8,8 @@ from src.repos.facilities import FacilitiesRepository, RoomsFacilitiesRepository
 from src.repos.hotels import HotelsRepository
 from src.repos.rooms import RoomsRepository
 from src.repos.users import UsersRepository
+
+logger = logging.getLogger(__name__)
 
 
 class DBManager:
@@ -34,7 +38,10 @@ class DBManager:
             await self.session.rollback()
             detail = str(exc.orig).lower()
             if "unique" in detail or "duplicate" in detail:
+                logger.warning("db_commit_integrity_error type=unique")
                 raise ObjectAlreadyExistsError("Object already exists") from exc
             if "foreign key" in detail:
+                logger.warning("db_commit_integrity_error type=foreign_key")
                 raise RelatedObjectNotFoundError("Related object not found") from exc
+            logger.error("db_commit_integrity_error type=unknown", exc_info=True)
             raise DatabaseIntegrityError() from exc

@@ -1,8 +1,12 @@
+import logging
+
 from fastapi import APIRouter, Query, Body
 from fastapi_cache.decorator import cache
 
 from src.api.dependcencies import DateRangeDep, PaginationDep, DBDep
 from src.schemas.hotels import HotelAdd, HotelPATCH
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
@@ -25,6 +29,7 @@ async def create_hotel(
 ):
     result = await db.hotels.add_one(hotel_data)
     await db.commit()
+    logger.info("hotel_created hotel_id=%s title=%s", result.id, result.title)
     return {"status": "ok", "data": result}
 
 
@@ -65,6 +70,7 @@ async def edit_hotel(
     await db.hotels.get_one(id=hotel_id)
     await db.hotels.edit(hotel_data, id=hotel_id)
     await db.commit()
+    logger.info("hotel_updated hotel_id=%s patch=false", hotel_id)
     return {"status": "ok"}
 
 
@@ -76,6 +82,7 @@ async def delete_hotel(
     await db.hotels.get_one(id=hotel_id)
     await db.hotels.delete(id=hotel_id)
     await db.commit()
+    logger.info("hotel_deleted hotel_id=%s", hotel_id)
     return {"status": "ok"}
 
 
@@ -89,4 +96,5 @@ async def partially_edit_hotel(
         return {"status": "ok"}
     await db.hotels.edit(hotel_data, patch=True, id=hotel_id)
     await db.commit()
+    logger.info("hotel_updated hotel_id=%s patch=true", hotel_id)
     return {"status": "ok"}

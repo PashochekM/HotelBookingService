@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str
     REDIS_PORT: int
+    LOG_LEVEL: str = "INFO"
 
     @property
     def REDIS_URL(self):

@@ -1,9 +1,13 @@
+import logging
+
 from fastapi import APIRouter, Body
 
 from src.api.dependcencies import DateRangeDep, DBDep
 from src.exceptions import ObjectNotFoundError, RelatedObjectNotFoundError
 from src.schemas.facilities import RoomFacilityAdd
 from src.schemas.rooms import RoomAdd, RoomPATCH, RoomRequestAdd, RoomRequestPATCH
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/hotels", tags=["Комнаты в отеле"])
 
@@ -72,6 +76,7 @@ async def create_room(
     rooms_facilities_data = [RoomFacilityAdd(room_id=result.id, facility_id=f_id) for f_id in room_data.facilities]
     await db.rooms_facilities.add_bulk(rooms_facilities_data)
     await db.commit()
+    logger.info("room_created room_id=%s hotel_id=%s facilities_count=%s", result.id, hotel_id, len(room_data.facilities))
     return {"data": result}
 
 
@@ -124,6 +129,7 @@ async def edit_hotel(
     await db.rooms.edit(_room_to_edit, id=room_id, hotel_id=hotel_id)
     await db.rooms_facilities.set_room_facilities(room_id=room_id, f_ids=room_data.facilities)
     await db.commit()
+    logger.info("room_updated room_id=%s hotel_id=%s patch=false", room_id, hotel_id)
 
     return {"status": "ok"}
 
@@ -132,6 +138,7 @@ async def edit_hotel(
 async def delete_room(db: DBDep, hotel_id: int, room_id: int):
     await db.rooms.delete(hotel_id=hotel_id, id=room_id)
     await db.commit()
+    logger.info("room_deleted room_id=%s hotel_id=%s", room_id, hotel_id)
     return {"status": "ok"}
 
 
@@ -174,4 +181,5 @@ async def partially_edit_room(
     if "facilities" in _room_data_dict:
         await db.rooms_facilities.set_room_facilities(room_id=room_id, f_ids=_room_data_dict["facilities"])
     await db.commit()
+    logger.info("room_updated room_id=%s hotel_id=%s patch=true", room_id, hotel_id)
     return {"status": "ok"}

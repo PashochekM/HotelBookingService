@@ -18,12 +18,14 @@ class RedisManager:
         try:
             self.redis = redis.Redis(host=self.host, port=self.port)
             await self.redis.ping()
+            logger.info("redis_connected host=%s port=%s", self.host, self.port)
         except (OSError, RedisError) as exc:
             self.redis = None
             raise InfrastructureError("Could not connect to Redis") from exc
 
     def _get_client(self):
         if self.redis is None:
+            logger.warning("redis_not_connected")
             raise InfrastructureError("Redis is not connected")
         return self.redis
 
@@ -44,5 +46,6 @@ class RedisManager:
         if self.redis:
             try:
                 await self.redis.close()
+                logger.info("redis_disconnected")
             except RedisError:
                 logger.exception("Could not close Redis connection")

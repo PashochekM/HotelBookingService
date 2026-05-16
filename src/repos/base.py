@@ -1,9 +1,13 @@
+import logging
+
 from pydantic import BaseModel
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.exc import IntegrityError
 
 from src.exceptions import DatabaseIntegrityError, ObjectAlreadyExistsError, ObjectNotFoundError, RelatedObjectNotFoundError
 from src.repos.mappers.base import DataMapper
+
+logger = logging.getLogger(__name__)
 
 
 class BaseRepository:
@@ -19,9 +23,12 @@ class BaseRepository:
     def _raise_integrity_error(self, exc: IntegrityError):
         detail = str(exc.orig).lower()
         if "unique" in detail or "duplicate" in detail:
+            logger.warning("repository_integrity_error type=unique model=%s", self._object_name())
             raise ObjectAlreadyExistsError(f"{self._object_name()} already exists") from exc
         if "foreign key" in detail:
+            logger.warning("repository_integrity_error type=foreign_key model=%s", self._object_name())
             raise RelatedObjectNotFoundError("Related object not found") from exc
+        logger.error("repository_integrity_error type=unknown model=%s", self._object_name(), exc_info=True)
         raise DatabaseIntegrityError() from exc
 
     async def get_filtered(self, *filter, **filters):
@@ -83,6 +90,7 @@ class BaseRepository:
         except IntegrityError as exc:
             detail = str(exc.orig).lower()
             if "foreign key" in detail:
+                logger.warning("repository_delete_restricted model=%s", self._object_name())
                 raise DatabaseIntegrityError(f"{self._object_name()} has related records") from exc
             self._raise_integrity_error(exc)
         if filters and result.rowcount == 0:

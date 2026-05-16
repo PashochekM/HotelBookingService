@@ -1,7 +1,11 @@
+import logging
+
 from fastapi import APIRouter, Body
 
 from src.api.dependcencies import DBDep, UserIdDep
 from src.schemas.bookings import BookingAdd, BookingRequestAdd
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
@@ -55,4 +59,12 @@ async def create_booking(
     _new_booking = BookingAdd(user_id=user_id, price=_room.price, **book_data.model_dump())
     result = await db.bookings.add_booking(_new_booking)
     await db.commit()
+    logger.info(
+        "booking_created booking_id=%s user_id=%s room_id=%s date_from=%s date_to=%s",
+        result.id,
+        user_id,
+        book_data.room_id,
+        book_data.date_from,
+        book_data.date_to,
+    )
     return {"data": result}
