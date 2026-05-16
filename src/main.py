@@ -28,15 +28,14 @@ async def run_send_emails_regularly():
         await send_emails_bookings_today_checkin()
         await asyncio.sleep(5)
 
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    #asyncio.create_task(run_send_emails_regularly())
+    # asyncio.create_task(run_send_emails_regularly())
     await redis_manager.connect()
     FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
     yield
     await redis_manager.disconnect()
-
-
 
 
 app = FastAPI(lifespan=lifespan)

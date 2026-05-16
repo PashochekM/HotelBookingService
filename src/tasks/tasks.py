@@ -15,7 +15,7 @@ def test_task():
     print("Test Task Completed")
 
 
-#@celery_instance.task
+# @celery_instance.task
 def resize_image(image_path: str):
     sizes = [1000, 500, 200]
     img = Image.open(image_path)
@@ -25,8 +25,7 @@ def resize_image(image_path: str):
 
     for size in sizes:
         image_resized = img.resize(
-            (size, int(img.height*(size/img.width))),
-            Image.Resampling.LANCZOS
+            (size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS
         )
         new_name = f"{name}_{size}px{ext}"
         output_path = f"src/static/images/{new_name}"
@@ -40,9 +39,6 @@ async def booking_today_checkin_helper():
         print(f"{bookings=}")
 
 
-
 @celery_instance.task(name="booking_today_checkin")
 def booking_today_checkin():
     asyncio.run(booking_today_checkin_helper())
-
-

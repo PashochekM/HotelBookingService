@@ -22,4 +22,3 @@ class BookingPATCH(BaseModel):
     date_from: date | None = Field(None)
     date_to: date | None = Field(None)
     price: int | None = Field(None)
-

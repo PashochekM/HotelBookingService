@@ -15,10 +15,10 @@ class RoomsRepository(BaseRepository):
     mapper = RoomDataMapper
 
     async def get_filtered_by_time(
-            self,
-            hotel_id: int,
-            date_from: date,
-            date_to: date,
+        self,
+        hotel_id: int,
+        date_from: date,
+        date_to: date,
     ):
         ##print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         ids_for_booking = await rooms_ids_for_booking(date_from, date_to, hotel_id)
@@ -35,7 +35,11 @@ class RoomsRepository(BaseRepository):
         ]
 
     async def get_one_or_none_with_rels(self, **filters):
-        query = select(self.model).options(selectinload(self.model.facilities)).filter_by(**filters)
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter_by(**filters)
+        )
         result = await self.session.execute(query)
         res = result.scalars().one_or_none()
         if res is None:

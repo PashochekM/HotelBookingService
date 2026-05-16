@@ -25,7 +25,6 @@ def upgrade() -> None:
     op.drop_column("users", "password")
 
 
-
 def downgrade() -> None:
     op.add_column(
         "users",

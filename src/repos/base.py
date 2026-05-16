@@ -12,15 +12,10 @@ class BaseRepository:
         self.session = session
 
     async def get_filtered(self, *filter, **filters):
-        query = (
-            select(self.model)
-            .filter(*filter)
-            .filter_by(**filters)
-        )
+        query = select(self.model).filter(*filter).filter_by(**filters)
         result = await self.session.execute(query)
         return [
-            self.mapper.map_to_domain_entity(model)
-            for model in result.scalars().all()
+            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
         ]
 
     async def get_all(self, *args, **kwargs):
@@ -35,11 +30,7 @@ class BaseRepository:
         return self.mapper.map_to_domain_entity(res)
 
     async def add_one(self, data):
-        stmt = (
-            insert(self.model)
-            .values(**data.model_dump())
-            .returning(self.model)
-        )
+        stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         # print(stmt.compile(compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(stmt)
         res = result.scalars().one()
@@ -66,9 +57,5 @@ class BaseRepository:
         await self.session.execute(stmt)
 
     async def delete(self, **filters):
-        stmt = (
-            delete(self.model)
-            .filter_by(**filters)
-        )
+        stmt = delete(self.model).filter_by(**filters)
         await self.session.execute(stmt)
-

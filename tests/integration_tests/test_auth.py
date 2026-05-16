@@ -1,4 +1,3 @@
-
 from src.services.auth import AuthService
 
 
@@ -12,4 +11,3 @@ def test_decode_and_encode_access_token():
     payload = AuthService().decode_auth_token(jwt_token)
     assert payload
     assert payload["user_id"] == data["user_id"]
-

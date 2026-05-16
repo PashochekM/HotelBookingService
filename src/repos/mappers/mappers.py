@@ -15,6 +15,7 @@ class HotelDataMapper(DataMapper):
     db_model = HotelsOrm
     schema = Hotel
 
+
 class UserDataMapper(DataMapper):
     db_model = UsersOrm
     schema = User
@@ -23,6 +24,7 @@ class UserDataMapper(DataMapper):
 class RoomDataMapper(DataMapper):
     db_model = RoomsOrm
     schema = Room
+
 
 class BookingDataMapper(DataMapper):
     db_model = BookingsOrm

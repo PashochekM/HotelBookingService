@@ -9,8 +9,8 @@ router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 @router.get("/me")
 async def get_own_bookings(
-        user_id: UserIdDep,
-        db: DBDep,
+    user_id: UserIdDep,
+    db: DBDep,
 ):
     result = await db.bookings.get_filtered(user_id=user_id)
     return {"data": result}
@@ -28,14 +28,15 @@ async def get_all_bookings(
 async def create_booking(
     user_id: UserIdDep,
     db: DBDep,
-    book_data: BookingRequestAdd = Body(openapi_examples={
+    book_data: BookingRequestAdd = Body(
+        openapi_examples={
             "short_stay": {
                 "summary": "Короткое бронирование",
                 "description": "Бронирование комнаты на 2 ночи",
                 "value": {
                     "room_id": 1,
                     "date_from": "2026-05-10",
-                    "date_to": "2026-05-12"
+                    "date_to": "2026-05-12",
                 },
             },
             "vacation": {
@@ -44,26 +45,24 @@ async def create_booking(
                 "value": {
                     "room_id": 3,
                     "date_from": "2026-07-01",
-                    "date_to": "2026-07-08"
+                    "date_to": "2026-07-08",
                 },
             },
-        }),
+        }
+    ),
 ):
     _room = await db.rooms.get_one_or_none(id=book_data.room_id)
     if _room is None:
         raise HTTPException(status_code=404, detail="Room not found")
 
-
-    _new_booking = BookingAdd(user_id=user_id, price=_room.price, **book_data.model_dump())
+    _new_booking = BookingAdd(
+        user_id=user_id, price=_room.price, **book_data.model_dump()
+    )
     try:
         result = await db.bookings.add_booking(_new_booking)
         await db.commit()
     except RoomNotAvailableError:
         raise HTTPException(
-            status_code=409,
-            detail="Room is not available for the selected dates"
+            status_code=409, detail="Room is not available for the selected dates"
         )
     return {"data": result}
-
-
-

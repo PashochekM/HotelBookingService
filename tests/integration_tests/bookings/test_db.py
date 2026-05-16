@@ -20,7 +20,3 @@ async def test_add_booking(db):
 
     assert get_data is not None
     assert get_data == real_data
-
-
-
-

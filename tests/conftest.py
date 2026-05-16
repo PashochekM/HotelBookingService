@@ -12,7 +12,7 @@ from src.api.dependcencies import get_db
 from src.config import settings
 from src.db import Base, engine_null_pool, async_session_maker_null_pool
 from src.main import app
-from src.models import * # noqa
+from src.models import *  # noqa
 from src.utils.db_manager import DBManager
 
 TESTS_DIR = Path(__file__).resolve().parent
@@ -28,9 +28,11 @@ async def db():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         yield db
 
+
 async def get_db_null_pull():
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         yield db
+
 
 app.dependency_overrides[get_db] = get_db_null_pull
 
@@ -73,22 +75,15 @@ async def ac():
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def register_user(setup_hotels_rooms_data, ac):
     response = await ac.post(
-        "/auth/register",
-        json={
-            "email": "man@woman.com",
-            "password": "12345"
-        }
+        "/auth/register", json={"email": "man@woman.com", "password": "12345"}
     )
     assert response.status_code == 200, response.text
+
 
 @pytest_asyncio.fixture(scope="session")
 async def auth_ac(register_user, ac):
     response = await ac.post(
-        "/auth/login",
-        json={
-            "email": "man@woman.com",
-            "password": "12345"
-        }
+        "/auth/login", json={"email": "man@woman.com", "password": "12345"}
     )
     assert response.status_code == 200, response.text
     assert "access_token" in ac.cookies

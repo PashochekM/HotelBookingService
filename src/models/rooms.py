@@ -19,4 +19,3 @@ class RoomsOrm(Base):
         back_populates="rooms",
         secondary="rooms_facilities",
     )
-

@@ -8,7 +8,3 @@ async def test_add_hotel(db):
     )
     await db.hotels.add_one(hotel_data)
     await db.commit()
-
-
-
-

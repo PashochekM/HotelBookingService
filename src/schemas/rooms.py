@@ -41,5 +41,3 @@ class RoomPATCH(BaseModel):
     description: str | None = Field(None)
     price: int | None = Field(None)
     quantity: int | None = Field(None)
-
-
