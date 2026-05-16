@@ -1,22 +1,22 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PositiveInt
 
 from src.schemas.facilities import Facility
 
 
 class RoomRequestAdd(BaseModel):
-    title: str
+    title: str = Field(min_length=1, max_length=100)
     description: str | None = Field(None)
-    price: int
-    quantity: int
-    facilities: list[int] = []
+    price: int = Field(gt=0)
+    quantity: int = Field(gt=0)
+    facilities: list[PositiveInt] = Field(default_factory=list)
 
 
 class RoomAdd(BaseModel):
-    hotel_id: int
-    title: str
+    hotel_id: PositiveInt
+    title: str = Field(min_length=1, max_length=100)
     description: str | None = Field(None)
-    price: int
-    quantity: int
+    price: int = Field(gt=0)
+    quantity: int = Field(gt=0)
 
 
 class Room(RoomAdd):
@@ -28,16 +28,15 @@ class RoomWithRels(Room):
 
 
 class RoomRequestPATCH(BaseModel):
-    title: str | None = Field(None)
+    title: str | None = Field(None, min_length=1, max_length=100)
     description: str | None = Field(None)
-    price: int | None = Field(None)
-    quantity: int | None = Field(None)
-    facilities: list[int] = []
+    price: int | None = Field(None, gt=0)
+    quantity: int | None = Field(None, gt=0)
+    facilities: list[PositiveInt] = Field(default_factory=list)
 
 
 class RoomPATCH(BaseModel):
-    hotel_id: int
-    title: str | None = Field(None)
+    title: str | None = Field(None, min_length=1, max_length=100)
     description: str | None = Field(None)
-    price: int | None = Field(None)
-    quantity: int | None = Field(None)
+    price: int | None = Field(None, gt=0)
+    quantity: int | None = Field(None, gt=0)

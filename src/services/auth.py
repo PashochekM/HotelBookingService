@@ -1,12 +1,10 @@
 import jwt
-from fastapi import HTTPException
 
 from passlib.context import CryptContext
 from datetime import UTC, timedelta, datetime
 
-from starlette import status
-
 from src.config import settings
+from src.exceptions import InvalidTokenError, TokenExpiredError
 
 
 class AuthService:
@@ -31,9 +29,8 @@ class AuthService:
     def decode_auth_token(self, auth_token: str) -> dict:
         try:
             data = jwt.decode(auth_token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        except jwt.exceptions.DecodeError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Неверный токен",
-            )
+        except jwt.exceptions.ExpiredSignatureError as exc:
+            raise TokenExpiredError() from exc
+        except jwt.exceptions.InvalidTokenError as exc:
+            raise InvalidTokenError() from exc
         return data

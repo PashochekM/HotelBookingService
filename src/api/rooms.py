@@ -1,25 +1,36 @@
-from datetime import date
+from fastapi import APIRouter, Body
 
-from fastapi import APIRouter, Body, HTTPException, Query
-
-from src.api.dependcencies import DBDep
+from src.api.dependcencies import DateRangeDep, DBDep
+from src.exceptions import ObjectNotFoundError, RelatedObjectNotFoundError
 from src.schemas.facilities import RoomFacilityAdd
 from src.schemas.rooms import RoomAdd, RoomPATCH, RoomRequestAdd, RoomRequestPATCH
 
 router = APIRouter(prefix="/hotels", tags=["Комнаты в отеле"])
 
 
+async def validate_hotel_exists(db: DBDep, hotel_id: int):
+    await db.hotels.get_one(id=hotel_id)
+
+
+async def validate_facilities_exist(db: DBDep, facility_ids: list[int]):
+    unique_facility_ids = list(set(facility_ids))
+    existing_ids = await db.facilities.get_existing_ids(unique_facility_ids)
+    missed_ids = set(unique_facility_ids) - existing_ids
+    if missed_ids:
+        raise RelatedObjectNotFoundError(f"Facilities not found: {sorted(missed_ids)}")
+
+
 @router.get("/{hotel_id}/rooms")
 async def get_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: date = Query(examples=["2026-08-01"]),
-    date_to: date = Query(examples=["2026-08-10"]),
+    date_range: DateRangeDep,
 ):
+    await validate_hotel_exists(db, hotel_id)
     return await db.rooms.get_filtered_by_time(
         hotel_id=hotel_id,
-        date_from=date_from,
-        date_to=date_to,
+        date_from=date_range.date_from,
+        date_to=date_range.date_to,
     )
 
 
@@ -52,6 +63,9 @@ async def create_room(
         }
     ),
 ):
+    await validate_hotel_exists(db, hotel_id)
+    await validate_facilities_exist(db, room_data.facilities)
+
     _room_to_add = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     result = await db.rooms.add_one(_room_to_add)
 
@@ -69,7 +83,7 @@ async def get_room(
 ):
     room = await db.rooms.get_one_or_none_with_rels(hotel_id=hotel_id, id=room_id)
     if room is None:
-        raise HTTPException(status_code=404, detail="Not found")
+        raise ObjectNotFoundError("Room not found")
 
     return {"status": "ok", "data": room}
 
@@ -104,6 +118,7 @@ async def edit_hotel(
         }
     ),
 ):
+    await validate_facilities_exist(db, room_data.facilities)
     _room_to_edit = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
 
     await db.rooms.edit(_room_to_edit, id=room_id, hotel_id=hotel_id)
@@ -145,8 +160,17 @@ async def partially_edit_room(
     ),
 ):
     _room_data_dict = room_data.model_dump(exclude_unset=True)
-    _room_to_edit = RoomPATCH(hotel_id=hotel_id, **_room_data_dict)
-    await db.rooms.edit(_room_to_edit, patch=True, id=room_id)
+    if not _room_data_dict:
+        return {"status": "ok"}
+    if "facilities" in _room_data_dict:
+        await validate_facilities_exist(db, _room_data_dict["facilities"])
+
+    room_fields = {key: value for key, value in _room_data_dict.items() if key != "facilities"}
+    if room_fields:
+        _room_to_edit = RoomPATCH(**room_fields)
+        await db.rooms.edit(_room_to_edit, patch=True, id=room_id, hotel_id=hotel_id)
+    else:
+        await db.rooms.get_one(id=room_id, hotel_id=hotel_id)
     if "facilities" in _room_data_dict:
         await db.rooms_facilities.set_room_facilities(room_id=room_id, f_ids=_room_data_dict["facilities"])
     await db.commit()

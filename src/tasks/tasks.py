@@ -1,12 +1,15 @@
-import os
 import asyncio
+import logging
+from pathlib import Path
 
 from time import sleep
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from src.db import async_session_maker_null_pool
 from src.tasks.celery_app import celery_instance
 from src.utils.db_manager import DBManager
+
+logger = logging.getLogger(__name__)
 
 
 @celery_instance.task
@@ -18,16 +21,23 @@ def test_task():
 # @celery_instance.task
 def resize_image(image_path: str):
     sizes = [1000, 500, 200]
-    img = Image.open(image_path)
+    image_path = Path(image_path)
+    created_paths: list[Path] = []
 
-    base_name = os.path.basename(image_path)
-    name, ext = os.path.splitext(base_name)
+    try:
+        with Image.open(image_path) as img:
+            name = image_path.stem
+            ext = image_path.suffix
 
-    for size in sizes:
-        image_resized = img.resize((size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS)
-        new_name = f"{name}_{size}px{ext}"
-        output_path = f"src/static/images/{new_name}"
-        image_resized.save(output_path)
+            for size in sizes:
+                image_resized = img.resize((size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS)
+                output_path = image_path.with_name(f"{name}_{size}px{ext}")
+                image_resized.save(output_path)
+                created_paths.append(output_path)
+    except (FileNotFoundError, OSError, UnidentifiedImageError):
+        for created_path in created_paths:
+            created_path.unlink(missing_ok=True)
+        logger.exception("Could not resize image %s", image_path)
 
 
 async def booking_today_checkin_helper():

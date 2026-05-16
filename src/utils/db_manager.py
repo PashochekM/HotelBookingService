@@ -1,3 +1,6 @@
+from sqlalchemy.exc import IntegrityError
+
+from src.exceptions import DatabaseIntegrityError, ObjectAlreadyExistsError, RelatedObjectNotFoundError
 from src.repos.bookings import BookingsRepository
 from src.repos.facilities import FacilitiesRepository, RoomsFacilitiesRepository
 from src.repos.hotels import HotelsRepository
@@ -25,4 +28,13 @@ class DBManager:
         await self.session.close()
 
     async def commit(self):
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError as exc:
+            await self.session.rollback()
+            detail = str(exc.orig).lower()
+            if "unique" in detail or "duplicate" in detail:
+                raise ObjectAlreadyExistsError("Object already exists") from exc
+            if "foreign key" in detail:
+                raise RelatedObjectNotFoundError("Related object not found") from exc
+            raise DatabaseIntegrityError() from exc

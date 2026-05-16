@@ -34,7 +34,6 @@ async def rooms_ids_for_booking(
     rooms_ids = select(RoomsOrm.id).select_from(RoomsOrm)
     if hotel_id is not None:
         rooms_ids = rooms_ids.filter_by(hotel_id=hotel_id)
-    rooms_ids = rooms_ids.subquery(name="rooms_ids")
 
     query = select(rooms_left_table.c.room_id).filter(
         rooms_left_table.c.rooms_left > 0,

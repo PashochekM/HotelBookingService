@@ -1,5 +1,7 @@
 from sqlalchemy import select, delete, insert
+from sqlalchemy.exc import IntegrityError
 
+from src.exceptions import RelatedObjectNotFoundError
 from src.models.facilities import FacilitiesOrm, RoomsFacilitiesOrm
 from src.repos.base import BaseRepository
 from src.repos.mappers.mappers import FacilityDataMapper
@@ -9,6 +11,14 @@ from src.schemas.facilities import RoomFacility
 class FacilitiesRepository(BaseRepository):
     model = FacilitiesOrm
     mapper = FacilityDataMapper
+
+    async def get_existing_ids(self, ids: list[int]) -> set[int]:
+        if not ids:
+            return set()
+
+        query = select(self.model.id).filter(self.model.id.in_(ids))
+        result = await self.session.execute(query)
+        return set(result.scalars().all())
 
 
 class RoomsFacilitiesRepository(BaseRepository):
@@ -28,4 +38,7 @@ class RoomsFacilitiesRepository(BaseRepository):
 
         if ids_to_append:
             insert_m2m_f_stmt = insert(self.model).values([{"room_id": room_id, "facility_id": f_id} for f_id in ids_to_append])
-            await self.session.execute(insert_m2m_f_stmt)
+            try:
+                await self.session.execute(insert_m2m_f_stmt)
+            except IntegrityError as exc:
+                raise RelatedObjectNotFoundError("Room or facility not found") from exc

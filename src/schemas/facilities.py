@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, PositiveInt
 
 
 class FacilityAdd(BaseModel):
-    title: str
+    title: str = Field(min_length=1, max_length=100)
 
 
 class Facility(FacilityAdd):
@@ -10,8 +10,8 @@ class Facility(FacilityAdd):
 
 
 class RoomFacilityAdd(BaseModel):
-    room_id: int
-    facility_id: int
+    room_id: PositiveInt
+    facility_id: PositiveInt
 
 
 class RoomFacility(RoomFacilityAdd):

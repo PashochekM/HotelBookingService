@@ -23,7 +23,7 @@ async def test_register_login_logout(email, password, setup_hotels_rooms_data, a
         },
     )
 
-    assert response.status_code == 404
+    assert response.status_code == 401
 
     response = await ac.post(
         "/auth/login",
@@ -33,7 +33,7 @@ async def test_register_login_logout(email, password, setup_hotels_rooms_data, a
         },
     )
 
-    assert response.status_code == 404
+    assert response.status_code == 401
 
     response = await ac.post(
         "/auth/login",
