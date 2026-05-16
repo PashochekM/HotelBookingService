@@ -24,9 +24,7 @@ def resize_image(image_path: str):
     name, ext = os.path.splitext(base_name)
 
     for size in sizes:
-        image_resized = img.resize(
-            (size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS
-        )
+        image_resized = img.resize((size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS)
         new_name = f"{name}_{size}px{ext}"
         output_path = f"src/static/images/{new_name}"
         image_resized.save(output_path)

@@ -23,23 +23,12 @@ class RoomsRepository(BaseRepository):
         ##print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         ids_for_booking = await rooms_ids_for_booking(date_from, date_to, hotel_id)
 
-        query = (
-            select(self.model)
-            .options(selectinload(self.model.facilities))
-            .filter(RoomsOrm.id.in_(ids_for_booking))
-        )
+        query = select(self.model).options(selectinload(self.model.facilities)).filter(RoomsOrm.id.in_(ids_for_booking))
         result = await self.session.execute(query)
-        return [
-            RoomWithRels.model_validate(model, from_attributes=True)
-            for model in result.scalars().all()
-        ]
+        return [RoomWithRels.model_validate(model, from_attributes=True) for model in result.scalars().all()]
 
     async def get_one_or_none_with_rels(self, **filters):
-        query = (
-            select(self.model)
-            .options(selectinload(self.model.facilities))
-            .filter_by(**filters)
-        )
+        query = select(self.model).options(selectinload(self.model.facilities)).filter_by(**filters)
         result = await self.session.execute(query)
         res = result.scalars().one_or_none()
         if res is None:

@@ -14,9 +14,7 @@ class BaseRepository:
     async def get_filtered(self, *filter, **filters):
         query = select(self.model).filter(*filter).filter_by(**filters)
         result = await self.session.execute(query)
-        return [
-            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
-        ]
+        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
     async def get_all(self, *args, **kwargs):
         return await self.get_filtered()
@@ -40,20 +38,12 @@ class BaseRepository:
         if not data:
             return
 
-        stmt = (
-            insert(self.model)
-            .values([item.model_dump() for item in data])
-            .returning(self.model)
-        )
+        stmt = insert(self.model).values([item.model_dump() for item in data]).returning(self.model)
         # print(stmt.compile(compile_kwargs={"literal_binds": True}))
         await self.session.execute(stmt)
 
     async def edit(self, data, patch: bool = False, **filters):
-        stmt = (
-            update(self.model)
-            .filter_by(**filters)
-            .values(**data.model_dump(exclude_unset=patch))
-        )
+        stmt = update(self.model).filter_by(**filters).values(**data.model_dump(exclude_unset=patch))
         await self.session.execute(stmt)
 
     async def delete(self, **filters):

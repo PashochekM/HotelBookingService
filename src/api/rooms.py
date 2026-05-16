@@ -55,10 +55,7 @@ async def create_room(
     _room_to_add = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     result = await db.rooms.add_one(_room_to_add)
 
-    rooms_facilities_data = [
-        RoomFacilityAdd(room_id=result.id, facility_id=f_id)
-        for f_id in room_data.facilities
-    ]
+    rooms_facilities_data = [RoomFacilityAdd(room_id=result.id, facility_id=f_id) for f_id in room_data.facilities]
     await db.rooms_facilities.add_bulk(rooms_facilities_data)
     await db.commit()
     return {"data": result}
@@ -110,9 +107,7 @@ async def edit_hotel(
     _room_to_edit = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
 
     await db.rooms.edit(_room_to_edit, id=room_id, hotel_id=hotel_id)
-    await db.rooms_facilities.set_room_facilities(
-        room_id=room_id, f_ids=room_data.facilities
-    )
+    await db.rooms_facilities.set_room_facilities(room_id=room_id, f_ids=room_data.facilities)
     await db.commit()
 
     return {"status": "ok"}
@@ -153,8 +148,6 @@ async def partially_edit_room(
     _room_to_edit = RoomPATCH(hotel_id=hotel_id, **_room_data_dict)
     await db.rooms.edit(_room_to_edit, patch=True, id=room_id)
     if "facilities" in _room_data_dict:
-        await db.rooms_facilities.set_room_facilities(
-            room_id=room_id, f_ids=_room_data_dict["facilities"]
-        )
+        await db.rooms_facilities.set_room_facilities(room_id=room_id, f_ids=_room_data_dict["facilities"])
     await db.commit()
     return {"status": "ok"}
