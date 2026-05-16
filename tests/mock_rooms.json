@@ -1,0 +1,58 @@
+[
+    {
+      "hotel_id": 1,
+      "title": "Standard Double",
+      "description": "Compact room with one double bed and a city view.",
+      "price": 4500,
+      "quantity": 8
+    },
+    {
+      "hotel_id": 1,
+      "title": "Business Suite",
+      "description": "Spacious suite with a work desk and separate lounge area.",
+      "price": 9200,
+      "quantity": 3
+    },
+    {
+      "hotel_id": 2,
+      "title": "Classic Twin",
+      "description": "Room with two single beds near the historic center.",
+      "price": 5200,
+      "quantity": 6
+    },
+    {
+      "hotel_id": 2,
+      "title": "Canal View Deluxe",
+      "description": "Deluxe room with a large bed and canal view.",
+      "price": 8700,
+      "quantity": 4
+    },
+    {
+      "hotel_id": 3,
+      "title": "Sea View Room",
+      "description": "Bright room with balcony and sea view.",
+      "price": 7600,
+      "quantity": 10
+    },
+    {
+      "hotel_id": 3,
+      "title": "Family Apartment",
+      "description": "Two-room apartment for families with children.",
+      "price": 11800,
+      "quantity": 5
+    },
+    {
+      "hotel_id": 4,
+      "title": "Forest Cabin",
+      "description": "Quiet wooden cabin with mountain and forest views.",
+      "price": 6800,
+      "quantity": 7
+    },
+    {
+      "hotel_id": 4,
+      "title": "Panorama Chalet",
+      "description": "Premium chalet with fireplace and panoramic windows.",
+      "price": 14500,
+      "quantity": 2
+    }
+]
