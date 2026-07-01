@@ -1,8 +1,7 @@
 # ruff: noqa: F821
 
 from sqlalchemy import String, ForeignKey
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db import Base
 

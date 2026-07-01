@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "email, password", [("cool_man@gay.com", "gaaay"), ("bad_man@gay.com", "pedic")]
+    "email, password", [("first_user@example.com", "first-pass"), ("second_user@example.com", "second-pass")]
 )
 async def test_register_login_logout(email, password, setup_hotels_rooms_data, ac):
     response = await ac.post(

@@ -26,10 +26,10 @@ async def create_room(
     room_data: RoomRequestAdd = Body(
         openapi_examples={
             "1": {
-                "summary": "Бомжарный",
+                "summary": "Эконом",
                 "value": {
                     "title": "Эконом",
-                    "description": "Воняет пздц",
+                    "description": "Компактный номер с базовыми удобствами",
                     "price": 2000,
                     "quantity": 2,
                     "facilities": [1, 2],
@@ -63,17 +63,17 @@ async def get_room(
 
 
 @router.put("/{hotel_id}/rooms/{room_id}")
-async def edit_hotel(
+async def edit_hotel(   
     rooms_service: RoomsServiceDep,
     hotel_id: int,
     room_id: int,
     room_data: RoomRequestAdd = Body(
         openapi_examples={
             "1": {
-                "summary": "Бомжарный",
+                "summary": "Эконом",
                 "value": {
                     "title": "Эконом",
-                    "description": "Воняет пздц",
+                    "description": "Компактный номер с базовыми удобствами",
                     "price": 1500,
                     "quantity": 2,
                     "facilities": [1],

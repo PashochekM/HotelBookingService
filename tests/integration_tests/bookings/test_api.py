@@ -60,3 +60,26 @@ async def test_add_and_get_my_bookings(
 
     assert response.status_code == 200
     assert len(response.json()["data"]) == count_booking
+
+
+async def test_booking_can_start_on_previous_checkout_date(auth_ac, clear_booking_db):
+    first_response = await auth_ac.post(
+        "/bookings",
+        json={
+            "room_id": 2,
+            "date_from": "2026-08-01",
+            "date_to": "2026-08-10",
+        },
+    )
+    assert first_response.status_code == 200
+
+    second_response = await auth_ac.post(
+        "/bookings",
+        json={
+            "room_id": 2,
+            "date_from": "2026-08-10",
+            "date_to": "2026-08-12",
+        },
+    )
+
+    assert second_response.status_code == 200
