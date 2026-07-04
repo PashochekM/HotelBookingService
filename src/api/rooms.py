@@ -1,25 +1,27 @@
 from fastapi import APIRouter, Body
 
 from src.api.dependcencies import DateRangeDep, RoomsServiceDep
-from src.schemas.rooms import RoomRequestAdd, RoomRequestPATCH
+from src.schemas.responses import DataResponse
+from src.schemas.rooms import Room, RoomRequestAdd, RoomRequestPATCH, RoomWithRels
 
 router = APIRouter(prefix="/hotels", tags=["Комнаты в отеле"])
 
 
-@router.get("/{hotel_id}/rooms")
+@router.get("/{hotel_id}/rooms", response_model=DataResponse[list[RoomWithRels]])
 async def get_rooms(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
     date_range: DateRangeDep,
 ):
-    return await rooms_service.get_rooms(
+    rooms = await rooms_service.get_rooms(
         hotel_id=hotel_id,
         date_from=date_range.date_from,
         date_to=date_range.date_to,
     )
+    return {"data": rooms}
 
 
-@router.post("/{hotel_id}/rooms")
+@router.post("/{hotel_id}/rooms", response_model=DataResponse[Room])
 async def create_room(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
@@ -52,18 +54,18 @@ async def create_room(
     return {"data": result}
 
 
-@router.get("/{hotel_id}/rooms/{room_id}")
+@router.get("/{hotel_id}/rooms/{room_id}", response_model=DataResponse[RoomWithRels])
 async def get_room(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
     room_id: int,
 ):
     room = await rooms_service.get_room(hotel_id, room_id)
-    return {"status": "ok", "data": room}
+    return {"data": room}
 
 
-@router.put("/{hotel_id}/rooms/{room_id}")
-async def edit_hotel(   
+@router.put("/{hotel_id}/rooms/{room_id}", response_model=DataResponse[None])
+async def edit_hotel(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
     room_id: int,
@@ -93,16 +95,16 @@ async def edit_hotel(
     ),
 ):
     await rooms_service.edit_room(hotel_id, room_id, room_data)
-    return {"status": "ok"}
+    return {"data": None}
 
 
-@router.delete("/{hotel_id}/rooms/{room_id}")
+@router.delete("/{hotel_id}/rooms/{room_id}", response_model=DataResponse[None])
 async def delete_room(rooms_service: RoomsServiceDep, hotel_id: int, room_id: int):
     await rooms_service.delete_room(hotel_id, room_id)
-    return {"status": "ok"}
+    return {"data": None}
 
 
-@router.patch("/{hotel_id}/rooms/{room_id}")
+@router.patch("/{hotel_id}/rooms/{room_id}", response_model=DataResponse[None])
 async def partially_edit_room(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
@@ -127,4 +129,4 @@ async def partially_edit_room(
     ),
 ):
     await rooms_service.partially_edit_room(hotel_id, room_id, room_data)
-    return {"status": "ok"}
+    return {"data": None}

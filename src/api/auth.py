@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Body, Response
 
 from src.api.dependcencies import AuthServiceDep, UserIdDep
-from src.schemas.users import UserRequestAdd
+from src.schemas.responses import DataResponse, TokenResponse
+from src.schemas.users import User, UserRequestAdd
 
 router = APIRouter(prefix="/auth", tags=["Авторизация и аунтификация"])
 
 
-@router.post("/register")
+@router.post("/register", response_model=DataResponse[None])
 async def register_user(
     auth_service: AuthServiceDep,
     data: UserRequestAdd = Body(
@@ -22,10 +23,10 @@ async def register_user(
     ),
 ):
     await auth_service.register(data)
-    return {"status": "ok"}
+    return {"data": None}
 
 
-@router.post("/login")
+@router.post("/login", response_model=DataResponse[TokenResponse])
 async def login_user(
     auth_service: AuthServiceDep,
     response: Response,
@@ -43,20 +44,21 @@ async def login_user(
 ):
     access_token = await auth_service.login(data)
     response.set_cookie(key="access_token", value=access_token, httponly=True)
-    return {"access_token": access_token}
+    return {"data": {"access_token": access_token}}
 
 
-@router.get("/me")
+@router.get("/me", response_model=DataResponse[User])
 async def get_me(
     auth_service: AuthServiceDep,
     user_id: UserIdDep,
 ):
-    return await auth_service.get_user(user_id)
+    user = await auth_service.get_user(user_id)
+    return {"data": user}
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=DataResponse[None])
 async def logout(
     response: Response,
 ):
     response.delete_cookie(key="access_token")
-    return {"status": "ok"}
+    return {"data": None}

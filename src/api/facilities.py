@@ -2,18 +2,20 @@ from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 
 from src.api.dependcencies import FacilitiesServiceDep
-from src.schemas.facilities import FacilityAdd
+from src.schemas.facilities import Facility, FacilityAdd
+from src.schemas.responses import DataResponse
 
 router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
 
-@router.get("")
+@router.get("", response_model=DataResponse[list[Facility]])
 @cache(expire=10)
 async def get_facilities(facilities_service: FacilitiesServiceDep):
-    return await facilities_service.get_facilities()
+    facilities = await facilities_service.get_facilities()
+    return {"data": facilities}
 
 
-@router.post("")
+@router.post("", response_model=DataResponse[Facility])
 async def create_facility(facilities_service: FacilitiesServiceDep, facility_data: FacilityAdd):
     result = await facilities_service.create_facility(facility_data)
 

@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Body
 
 from src.api.dependcencies import BookingsServiceDep, UserIdDep
-from src.schemas.bookings import BookingRequestAdd
+from src.schemas.bookings import Booking, BookingRequestAdd
+from src.schemas.responses import DataResponse
 
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 
-@router.get("/me")
+@router.get("/me", response_model=DataResponse[list[Booking]])
 async def get_own_bookings(
     user_id: UserIdDep,
     bookings_service: BookingsServiceDep,
@@ -15,7 +16,7 @@ async def get_own_bookings(
     return {"data": result}
 
 
-@router.get("")
+@router.get("", response_model=DataResponse[list[Booking]])
 async def get_all_bookings(
     bookings_service: BookingsServiceDep,
 ):
@@ -23,7 +24,7 @@ async def get_all_bookings(
     return {"data": result}
 
 
-@router.post("")
+@router.post("", response_model=DataResponse[Booking])
 async def create_booking(
     user_id: UserIdDep,
     bookings_service: BookingsServiceDep,

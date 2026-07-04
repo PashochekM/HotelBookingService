@@ -13,7 +13,7 @@ async def test_register_login_logout(email, password, setup_hotels_rooms_data, a
         },
     )
     assert response.status_code == 200, response.text
-    assert (response.json()).get("status") == "ok"
+    assert response.json() == {"data": None}
 
     response = await ac.post(
         "/auth/login",
@@ -45,11 +45,12 @@ async def test_register_login_logout(email, password, setup_hotels_rooms_data, a
 
     assert response.status_code == 200, response.text
     assert "access_token" in ac.cookies
-    assert ac.cookies["access_token"] == response.json()["access_token"]
+    assert ac.cookies["access_token"] == response.json()["data"]["access_token"]
 
     response = await ac.get("/auth/me")
     assert response.status_code == 200
-    assert response.json()["email"] == email
+    assert response.json()["data"]["email"] == email
 
     response = await ac.post("/auth/logout")
+    assert response.json() == {"data": None}
     assert "access_token" not in ac.cookies

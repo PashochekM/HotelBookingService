@@ -12,4 +12,4 @@ async def test_create_and_get_facilities(ac):
 
     response = await ac.get("/facilities")
 
-    assert data in response.json()
+    assert data in response.json()["data"]
