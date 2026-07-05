@@ -11,7 +11,7 @@ from fastapi_cache.backends.inmemory import InMemoryBackend
 from starlette import status
 
 from src import redis_manager
-from src.api.dependcencies import get_db
+from src.api.dependencies import get_db
 from src.api.hotels import router as hotels_router
 from src.api.middlewares import request_logging_middleware
 from src.api.auth import router as auth_router

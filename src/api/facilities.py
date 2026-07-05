@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 
-from src.api.dependcencies import FacilitiesServiceDep
+from src.api.dependencies import FacilitiesServiceDep
 from src.schemas.facilities import Facility, FacilityAdd
 from src.schemas.responses import DataResponse
 

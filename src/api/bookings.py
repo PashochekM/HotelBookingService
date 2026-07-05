@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body
 
-from src.api.dependcencies import BookingsServiceDep, UserIdDep
+from src.api.dependencies import BookingsServiceDep, UserIdDep
 from src.schemas.bookings import Booking, BookingRequestAdd
 from src.schemas.responses import DataResponse
 

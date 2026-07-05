@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Body, Response
 
-from src.api.dependcencies import AuthServiceDep, UserIdDep
+from src.api.dependencies import AuthServiceDep, UserIdDep
 from src.schemas.responses import DataResponse, TokenResponse
 from src.schemas.users import User, UserRequestAdd
 
-router = APIRouter(prefix="/auth", tags=["Авторизация и аунтификация"])
+router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
 
 
 @router.post("/register", response_model=DataResponse[None])

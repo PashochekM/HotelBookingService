@@ -8,7 +8,7 @@ mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f)
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 
-from src.api.dependcencies import get_db
+from src.api.dependencies import get_db
 from src.config import settings
 from src.db import Base, engine_null_pool, async_session_maker_null_pool
 from src.main import app

@@ -1,4 +1,4 @@
-"""удобства в комнатах
+"""room facilities
 
 Revision ID: 633521f1cd7f
 Revises: a31642eaa020

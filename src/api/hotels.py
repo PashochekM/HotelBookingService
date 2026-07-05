@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query, Body
 from fastapi_cache.decorator import cache
 
-from src.api.dependcencies import DateRangeDep, HotelsServiceDep, PaginationDep
+from src.api.dependencies import DateRangeDep, HotelsServiceDep, PaginationDep
 from src.schemas.hotels import Hotel, HotelAdd, HotelPATCH
 from src.schemas.responses import DataResponse
 

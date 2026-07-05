@@ -1,10 +1,10 @@
 from fastapi import APIRouter, UploadFile, BackgroundTasks
 
-from src.api.dependcencies import ImagesServiceDep
+from src.api.dependencies import ImagesServiceDep
 from src.schemas.responses import DataResponse, UploadedImageResponse
 from src.tasks.tasks import resize_image
 
-router = APIRouter(prefix="/images", tags=["Изображение отелей"])
+router = APIRouter(prefix="/images", tags=["Изображения отелей"])
 
 
 @router.post("/images", response_model=DataResponse[UploadedImageResponse])

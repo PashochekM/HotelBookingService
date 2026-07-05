@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body
 
-from src.api.dependcencies import DateRangeDep, RoomsServiceDep
+from src.api.dependencies import DateRangeDep, RoomsServiceDep
 from src.schemas.responses import DataResponse
 from src.schemas.rooms import Room, RoomRequestAdd, RoomRequestPATCH, RoomWithRels
 
@@ -38,7 +38,7 @@ async def create_room(
                 },
             },
             "2": {
-                "summary": "Крутой",
+                "summary": "Люкс",
                 "value": {
                     "title": "Люкс",
                     "description": "Дорого богато",
@@ -82,7 +82,7 @@ async def edit_hotel(
                 },
             },
             "2": {
-                "summary": "Крутой",
+                "summary": "Люкс",
                 "value": {
                     "title": "Люкс",
                     "description": "Дорого богато",
@@ -119,7 +119,7 @@ async def partially_edit_room(
                 },
             },
             "2": {
-                "summary": "Изменений описания + количества",
+                "summary": "Изменение описания и количества",
                 "value": {
                     "description": "Их много",
                     "quantity": 100,
