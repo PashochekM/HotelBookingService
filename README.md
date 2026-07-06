@@ -97,20 +97,26 @@ docker compose exec redis redis-cli keys "*"
 
 ## Demo Flow
 
-After `docker compose up --build`, open Swagger at `http://localhost:8888/docs` and run:
+After `docker compose up --build`, seed demo data:
 
-1. `POST /auth/register` with `admin@mail.com`.
-2. `POST /auth/login`.
-3. Promote the user to admin in the Docker database:
-
-```sql
-UPDATE users SET role = 'admin' WHERE email = 'admin@mail.com';
+```powershell
+docker compose exec api python -m src.scripts.seed_demo
 ```
 
-4. Create a hotel with `POST /hotels`.
-5. Create a room with `POST /hotels/{hotel_id}/rooms`.
-6. Create a booking with `POST /bookings`.
-7. Cancel the booking with `PATCH /bookings/{booking_id}/cancel`.
+For a local run with `.env`, use:
+
+```powershell
+python -m src.scripts.seed_demo
+```
+
+Then open Swagger at `http://localhost:8888/docs` and run:
+
+1. `POST /auth/login` with `admin@mail.com / admin`.
+2. Check seeded data with `GET /facilities` and `GET /hotels`.
+3. Register a regular user with `POST /auth/register`.
+4. Login as the regular user with `POST /auth/login`.
+5. Create a booking with `POST /bookings`.
+6. Cancel the booking with `PATCH /bookings/{booking_id}/cancel`.
 
 ## Tests
 
