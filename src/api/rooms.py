@@ -4,7 +4,7 @@ from src.api.dependencies import AdminDep, DateRangeDep, RoomsServiceDep
 from src.schemas.responses import DataResponse
 from src.schemas.rooms import Room, RoomRequestAdd, RoomRequestPATCH, RoomWithRels
 
-router = APIRouter(prefix="/hotels", tags=["Комнаты в отеле"])
+router = APIRouter(prefix="/hotels", tags=["Комнаты"])
 
 
 @router.get("/{hotel_id}/rooms", response_model=DataResponse[list[RoomWithRels]])
@@ -42,7 +42,7 @@ async def create_room(
                 "summary": "Люкс",
                 "value": {
                     "title": "Люкс",
-                    "description": "Дорого богато",
+                    "description": "Просторный номер повышенной комфортности",
                     "price": 100000,
                     "quantity": 5,
                     "facilities": [2],
@@ -87,7 +87,7 @@ async def edit_hotel(
                 "summary": "Люкс",
                 "value": {
                     "title": "Люкс",
-                    "description": "Дорого богато",
+                    "description": "Просторный номер повышенной комфортности",
                     "price": 30000,
                     "quantity": 6,
                     "facilities": [1],
@@ -124,7 +124,7 @@ async def partially_edit_room(
             "2": {
                 "summary": "Изменение описания и количества",
                 "value": {
-                    "description": "Их много",
+                    "description": "Номеров много",
                     "quantity": 100,
                 },
             },

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, Body
+from fastapi import APIRouter, Body, Query
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import AdminDep, DateRangeDep, HotelsServiceDep, PaginationDep
@@ -19,7 +19,7 @@ async def create_hotel(
                 "value": {"title": "Hotel Sochi", "location": "Kabardinka"},
             },
             "2": {
-                "summary": "Base",
+                "summary": "Базовый отель",
                 "value": {"title": "BaseHotel", "location": "BaseLocation"},
             },
         }

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, UploadFile
 
 from src.api.dependencies import AdminDep, ImagesServiceDep
 from src.schemas.responses import DataResponse, UploadedImageResponse

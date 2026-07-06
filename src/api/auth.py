@@ -4,7 +4,7 @@ from src.api.dependencies import AuthServiceDep, CurrentUserDep
 from src.schemas.responses import DataResponse, TokenResponse
 from src.schemas.users import User, UserRequestAdd
 
-router = APIRouter(prefix="/auth", tags=["Авторизация и аутентификация"])
+router = APIRouter(prefix="/auth", tags=["Авторизация"])
 
 
 @router.post("/register", response_model=DataResponse[None])
@@ -13,17 +13,17 @@ async def register_user(
     data: UserRequestAdd = Body(
         openapi_examples={
             "1": {
-                "summary": "test_user",
+                "summary": "Обычный пользователь",
                 "value": {
                     "email": "contact@mail.com",
                     "password": "pass",
                 },
             },
             "2": {
-                "summary": "admin_user",
+                "summary": "Demo admin",
                 "value": {
                     "email": "admin@mail.com",
-                    "password": "12345",
+                    "password": "admin",
                 },
             },
         }
@@ -40,17 +40,17 @@ async def login_user(
     data: UserRequestAdd = Body(
         openapi_examples={
             "1": {
-                "summary": "test_user",
+                "summary": "Обычный пользователь",
                 "value": {
                     "email": "contact@mail.com",
                     "password": "pass",
                 },
             },
             "2": {
-                "summary": "admin_user",
+                "summary": "Demo admin",
                 "value": {
                     "email": "admin@mail.com",
-                    "password": "12345",
+                    "password": "admin",
                 },
             },
         }
