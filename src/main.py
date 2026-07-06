@@ -12,6 +12,7 @@ from starlette import status
 
 from src import redis_manager
 from src.api.dependencies import get_db
+from src.api.health import router as health_router
 from src.api.hotels import router as hotels_router
 from src.api.middlewares import request_logging_middleware
 from src.api.auth import router as auth_router
@@ -173,6 +174,7 @@ app.include_router(rooms_router)
 app.include_router(bookings_router)
 app.include_router(facilities_router)
 app.include_router(images_router)
+app.include_router(health_router)
 
 
 if __name__ == "__main__":

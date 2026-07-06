@@ -81,6 +81,10 @@ Stop the stack and remove the demo database volume:
 docker compose down -v
 ```
 
+## Health Checks
+
+The API exposes `GET /health` for liveness, `GET /health/db` for PostgreSQL, and `GET /health/redis` for Redis. Docker Compose marks the API container healthy through `/health`.
+
 ## Demo Flow
 
 After `docker compose up --build`, open Swagger at `http://localhost:8888/docs` and run:
@@ -130,3 +134,7 @@ Alembic uses the same settings object as the application. Run migrations against
 ```powershell
 alembic upgrade head
 ```
+
+## CI
+
+GitHub Actions runs Docker Compose config validation, compile checks, Alembic migrations, and pytest against PostgreSQL 16 on push and pull requests.
