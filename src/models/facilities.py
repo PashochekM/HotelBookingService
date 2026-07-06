@@ -1,8 +1,7 @@
 # ruff: noqa: F821
 
-from sqlalchemy import String, ForeignKey
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db import Base
 
@@ -21,6 +20,7 @@ class FacilitiesOrm(Base):
 
 class RoomsFacilitiesOrm(Base):
     __tablename__ = "rooms_facilities"
+    __table_args__ = (UniqueConstraint("room_id", "facility_id", name="uq_rooms_facilities_room_id_facility_id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))

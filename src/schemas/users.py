@@ -1,4 +1,8 @@
+from typing import Literal
+
 from pydantic import BaseModel, EmailStr, Field
+
+UserRole = Literal["user", "admin"]
 
 
 class UserRequestAdd(BaseModel):
@@ -9,11 +13,13 @@ class UserRequestAdd(BaseModel):
 class UserAdd(BaseModel):
     email: EmailStr
     hashed_password: str
+    role: UserRole = "user"
 
 
 class User(BaseModel):
     id: int
     email: str
+    role: UserRole
 
 
 class UserWithHashedPassword(User):

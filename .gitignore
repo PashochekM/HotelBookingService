@@ -1,2 +1,16 @@
 .env
+.env-*
+.env.test
+.env.docker
+!.env.example
+!.env.docker.example
+!.env.test.example
+
+.venv/
 .pytest_cache/
+pytest-cache-files-*/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+
+.idea/

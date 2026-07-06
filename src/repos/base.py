@@ -1,7 +1,7 @@
 import logging
 
 from pydantic import BaseModel
-from sqlalchemy import select, insert, delete, update
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.exc import IntegrityError
 
 from src.exceptions import DatabaseIntegrityError, ObjectAlreadyExistsError, ObjectNotFoundError, RelatedObjectNotFoundError
@@ -84,6 +84,9 @@ class BaseRepository:
             raise ObjectNotFoundError(f"{self._object_name()} not found")
 
     async def delete(self, **filters):
+        if not filters:
+            raise ValueError("delete requires filters; use delete_all explicitly")
+
         stmt = delete(self.model).filter_by(**filters)
         try:
             result = await self.session.execute(stmt)
@@ -95,3 +98,14 @@ class BaseRepository:
             self._raise_integrity_error(exc)
         if filters and result.rowcount == 0:
             raise ObjectNotFoundError(f"{self._object_name()} not found")
+
+    async def delete_all(self):
+        stmt = delete(self.model)
+        try:
+            await self.session.execute(stmt)
+        except IntegrityError as exc:
+            detail = str(exc.orig).lower()
+            if "foreign key" in detail:
+                logger.warning("repository_delete_all_restricted model=%s", self._object_name())
+                raise DatabaseIntegrityError(f"{self._object_name()} has related records") from exc
+            self._raise_integrity_error(exc)

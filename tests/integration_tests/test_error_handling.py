@@ -68,8 +68,8 @@ async def test_get_rooms_for_missing_hotel_returns_404(ac):
     assert response.status_code == 404
 
 
-async def test_create_room_for_missing_hotel_returns_404(ac):
-    response = await ac.post(
+async def test_create_room_for_missing_hotel_returns_404(admin_ac):
+    response = await admin_ac.post(
         "/hotels/999999/rooms",
         json={
             "title": "Nowhere",
@@ -81,8 +81,8 @@ async def test_create_room_for_missing_hotel_returns_404(ac):
     assert response.status_code == 404
 
 
-async def test_create_room_with_missing_facility_returns_404(ac):
-    response = await ac.post(
+async def test_create_room_with_missing_facility_returns_404(admin_ac):
+    response = await admin_ac.post(
         "/hotels/1/rooms",
         json={
             "title": "Room with unknown facility",
@@ -95,12 +95,12 @@ async def test_create_room_with_missing_facility_returns_404(ac):
     assert response.status_code == 404
 
 
-async def test_patch_room_in_wrong_hotel_does_not_update_room(ac):
+async def test_patch_room_in_wrong_hotel_does_not_update_room(ac, admin_ac):
     before_response = await ac.get("/hotels/1/rooms/1")
     assert before_response.status_code == 200
     old_title = before_response.json()["data"]["title"]
 
-    response = await ac.patch("/hotels/2/rooms/1", json={"title": "Wrong hotel edit"})
+    response = await admin_ac.patch("/hotels/2/rooms/1", json={"title": "Wrong hotel edit"})
 
     after_response = await ac.get("/hotels/1/rooms/1")
     assert response.status_code == 404
@@ -134,8 +134,8 @@ async def test_booking_missing_room_returns_404(auth_ac):
     assert response.status_code == 404
 
 
-async def test_upload_invalid_image_returns_400(ac):
-    response = await ac.post(
+async def test_upload_invalid_image_returns_400(admin_ac):
+    response = await admin_ac.post(
         "/images/images",
         files={"file": ("bad.txt", b"not an image", "text/plain")},
     )

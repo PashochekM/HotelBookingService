@@ -5,23 +5,26 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.backends.redis import RedisBackend
 from starlette import status
 
 from src import redis_manager
-from src.api.dependcencies import get_db
-from src.api.hotels import router as hotels_router
-from src.api.middlewares import request_logging_middleware
 from src.api.auth import router as auth_router
-from src.api.rooms import router as rooms_router
 from src.api.bookings import router as bookings_router
+from src.api.dependencies import get_db
 from src.api.facilities import router as facilities_router
+from src.api.health import router as health_router
+from src.api.hotels import router as hotels_router
 from src.api.images import router as images_router
+from src.api.middlewares import request_logging_middleware
+from src.api.rooms import router as rooms_router
 from src.config import settings
 from src.exceptions import (
+    BookingAlreadyCancelledError,
     DatabaseIntegrityError,
+    ForbiddenError,
     InfrastructureError,
     InvalidBookingDatesError,
     InvalidCredentialsError,
@@ -57,9 +60,12 @@ async def lifespan(_: FastAPI):
     # asyncio.create_task(run_send_emails_regularly())
     try:
         await redis_manager.connect()
+        FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+        logger.info("cache_backend=redis")
     except InfrastructureError:
-        logger.warning("Redis is unavailable. API is starting without Redis.", exc_info=True)
-    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+        logger.warning("Redis is unavailable. Using in-memory cache.", exc_info=True)
+        FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+        logger.info("cache_backend=memory")
     yield
     await redis_manager.disconnect()
     logger.info("application_stopped")
@@ -93,6 +99,12 @@ async def room_not_available_handler(request: Request, exc: RoomNotAvailableErro
     return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": exc.message})
 
 
+@app.exception_handler(BookingAlreadyCancelledError)
+async def booking_already_cancelled_handler(request: Request, exc: BookingAlreadyCancelledError):
+    logger.info("booking_already_cancelled path=%s detail=%s", request.url.path, exc.message)
+    return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": exc.message})
+
+
 @app.exception_handler(InvalidBookingDatesError)
 async def invalid_booking_dates_handler(request: Request, exc: InvalidBookingDatesError):
     logger.info("invalid_booking_dates path=%s detail=%s", request.url.path, exc.message)
@@ -113,6 +125,12 @@ async def invalid_token_handler(request: Request, exc: InvalidTokenError):
         content={"detail": exc.message},
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+
+@app.exception_handler(ForbiddenError)
+async def forbidden_handler(request: Request, exc: ForbiddenError):
+    logger.warning("forbidden path=%s detail=%s", request.url.path, exc.message)
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": exc.message})
 
 
 @app.exception_handler(TokenExpiredError)
@@ -159,6 +177,7 @@ app.include_router(rooms_router)
 app.include_router(bookings_router)
 app.include_router(facilities_router)
 app.include_router(images_router)
+app.include_router(health_router)
 
 
 if __name__ == "__main__":

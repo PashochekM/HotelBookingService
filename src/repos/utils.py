@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 
 from src.models.bookings import BookingsOrm
 from src.models.rooms import RoomsOrm
@@ -15,8 +15,9 @@ async def rooms_ids_for_booking(
         select(BookingsOrm.room_id, func.count("*").label("rooms_booked"))
         .select_from(BookingsOrm)
         .filter(
-            BookingsOrm.date_from <= date_to,
-            BookingsOrm.date_to >= date_from,
+            BookingsOrm.date_from < date_to,
+            BookingsOrm.date_to > date_from,
+            BookingsOrm.status == "active",
         )
         .group_by(BookingsOrm.room_id)
         .cte(name="rooms_count")

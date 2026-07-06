@@ -1,9 +1,8 @@
 import logging
+from datetime import UTC, datetime, timedelta
 
 import jwt
-
 from passlib.context import CryptContext
-from datetime import UTC, timedelta, datetime
 
 from src.config import settings
 from src.exceptions import InvalidCredentialsError, InvalidTokenError, ObjectAlreadyExistsError, ObjectNotFoundError, TokenExpiredError

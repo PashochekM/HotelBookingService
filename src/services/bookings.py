@@ -1,6 +1,8 @@
 import logging
 
+from src.exceptions import BookingAlreadyCancelledError, ObjectNotFoundError
 from src.schemas.bookings import BookingAdd, BookingRequestAdd
+from src.schemas.users import User
 from src.services.base import BaseService
 
 logger = logging.getLogger(__name__)
@@ -25,5 +27,22 @@ class BookingsService(BaseService):
             book_data.room_id,
             book_data.date_from,
             book_data.date_to,
+        )
+        return result
+
+    async def cancel_booking(self, booking_id: int, current_user: User):
+        booking = await self.db.bookings.get_one(id=booking_id)
+        if current_user.role != "admin" and booking.user_id != current_user.id:
+            raise ObjectNotFoundError("Booking not found")
+        if booking.status == "cancelled":
+            raise BookingAlreadyCancelledError()
+
+        result = await self.db.bookings.update_status(booking_id, "cancelled")
+        await self.db.commit()
+        logger.info(
+            "booking_cancelled booking_id=%s user_id=%s cancelled_by_user_id=%s",
+            booking_id,
+            booking.user_id,
+            current_user.id,
         )
         return result

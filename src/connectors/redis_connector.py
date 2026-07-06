@@ -23,6 +23,16 @@ class RedisManager:
             self.redis = None
             raise InfrastructureError("Could not connect to Redis") from exc
 
+    async def ping(self):
+        try:
+            if self.redis is None:
+                await self.connect()
+            else:
+                await self.redis.ping()
+        except (OSError, RedisError) as exc:
+            self.redis = None
+            raise InfrastructureError("Redis is unavailable") from exc
+
     def _get_client(self):
         if self.redis is None:
             logger.warning("redis_not_connected")

@@ -1,15 +1,17 @@
-from fastapi import APIRouter, Query, Body
+from fastapi import APIRouter, Body, Query
 from fastapi_cache.decorator import cache
 
-from src.api.dependcencies import DateRangeDep, HotelsServiceDep, PaginationDep
-from src.schemas.hotels import HotelAdd, HotelPATCH
+from src.api.dependencies import AdminDep, DateRangeDep, HotelsServiceDep, PaginationDep
+from src.schemas.hotels import Hotel, HotelAdd, HotelPATCH
+from src.schemas.responses import DataResponse
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
-@router.post("")
+@router.post("", response_model=DataResponse[Hotel])
 async def create_hotel(
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
     hotel_data: HotelAdd = Body(
         openapi_examples={
             "1": {
@@ -17,17 +19,17 @@ async def create_hotel(
                 "value": {"title": "Hotel Sochi", "location": "Kabardinka"},
             },
             "2": {
-                "summary": "Base",
+                "summary": "Базовый отель",
                 "value": {"title": "BaseHotel", "location": "BaseLocation"},
             },
         }
     ),
 ):
     result = await hotels_service.create_hotel(hotel_data)
-    return {"status": "ok", "data": result}
+    return {"data": result}
 
 
-@router.get("")
+@router.get("", response_model=DataResponse[list[Hotel]])
 @cache(expire=10)
 async def get_hotels(
     pagination: PaginationDep,
@@ -36,7 +38,7 @@ async def get_hotels(
     title: str | None = Query(None, description="Название отеля"),
     location: str | None = Query(None, description="Локация"),
 ):
-    return await hotels_service.get_hotels(
+    hotels = await hotels_service.get_hotels(
         date_from=date_range.date_from,
         date_to=date_range.date_to,
         page=pagination.page,
@@ -44,40 +46,45 @@ async def get_hotels(
         location=location,
         title=title,
     )
+    return {"data": hotels}
 
 
-@router.get("/{hotel_id}")
+@router.get("/{hotel_id}", response_model=DataResponse[Hotel])
 async def get_hotel(
     hotel_id: int,
     hotels_service: HotelsServiceDep,
 ):
-    return await hotels_service.get_hotel(hotel_id)
+    hotel = await hotels_service.get_hotel(hotel_id)
+    return {"data": hotel}
 
 
-@router.put("/{hotel_id}")
+@router.put("/{hotel_id}", response_model=DataResponse[None])
 async def edit_hotel(
     hotel_id: int,
     hotel_data: HotelAdd,
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
 ):
     await hotels_service.edit_hotel(hotel_id, hotel_data)
-    return {"status": "ok"}
+    return {"data": None}
 
 
-@router.delete("/{hotel_id}")
+@router.delete("/{hotel_id}", response_model=DataResponse[None])
 async def delete_hotel(
     hotel_id: int,
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
 ):
     await hotels_service.delete_hotel(hotel_id)
-    return {"status": "ok"}
+    return {"data": None}
 
 
-@router.patch("/{hotel_id}")
+@router.patch("/{hotel_id}", response_model=DataResponse[None])
 async def partially_edit_hotel(
     hotel_id: int,
     hotel_data: HotelPATCH,
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
 ):
     await hotels_service.partially_edit_hotel(hotel_id, hotel_data)
-    return {"status": "ok"}
+    return {"data": None}

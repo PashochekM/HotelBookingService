@@ -1,8 +1,8 @@
 import asyncio
 import logging
 from pathlib import Path
-
 from time import sleep
+
 from PIL import Image, UnidentifiedImageError
 
 from src.db import async_session_maker_null_pool

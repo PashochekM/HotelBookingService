@@ -30,7 +30,7 @@ class UploadedImage:
 
 class ImagesService:
     @staticmethod
-    def upload_image(self, file: UploadFile) -> UploadedImage:
+    def upload_image(file: UploadFile) -> UploadedImage:
         content_type = file.content_type or ""
         suffix = Path(file.filename or "").suffix.lower()
         if content_type not in ALLOWED_IMAGE_TYPES or suffix not in ALLOWED_IMAGE_SUFFIXES:
