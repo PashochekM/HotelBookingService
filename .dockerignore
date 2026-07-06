@@ -3,12 +3,10 @@
 __pycache__
 *.py[cod]
 .pytest_cache
+pytest-cache-files-*
 .ruff_cache
 .idea
 
 .env
 .env-*
 .env.docker
-
-Dockerfile
-docker-compose.yml

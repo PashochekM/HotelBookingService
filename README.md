@@ -43,10 +43,60 @@ uvicorn src.main:app --reload
 Create `.env.docker` from `.env.docker.example`, then run:
 
 ```powershell
+Copy-Item .env.docker.example .env.docker -Force
 docker compose up --build
 ```
 
-The API is exposed on `http://localhost:8888`.
+The API is exposed on:
+
+```text
+http://localhost:8888
+```
+
+Swagger UI:
+
+```text
+http://localhost:8888/docs
+```
+
+The compose stack starts the API, PostgreSQL, and Redis. The API container applies Alembic migrations before starting Uvicorn.
+
+PostgreSQL is also exposed on `localhost:5433` for tools such as DataGrip or PyCharm Database. Demo credentials match `.env.docker.example`:
+
+```text
+database=booking
+user=postgres
+password=postgres
+```
+
+Stop the stack:
+
+```powershell
+docker compose down
+```
+
+Stop the stack and remove the demo database volume:
+
+```powershell
+docker compose down -v
+```
+
+## Demo Flow
+
+After `docker compose up --build`, open Swagger at `http://localhost:8888/docs` and run:
+
+1. `POST /auth/register` with `admin@mail.com`.
+2. `POST /auth/login`.
+3. Promote the user to admin in the Docker database:
+
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'admin@mail.com';
+```
+
+4. Create a hotel with `POST /hotels`.
+5. Create a room with `POST /hotels/{hotel_id}/rooms`.
+6. Create a booking with `POST /bookings`.
+7. Cancel the booking with `PATCH /bookings/{booking_id}/cancel`.
 
 ## Tests
 
