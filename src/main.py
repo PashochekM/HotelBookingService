@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.backends.redis import RedisBackend
 from starlette import status
 
 from src import redis_manager
@@ -60,9 +61,12 @@ async def lifespan(_: FastAPI):
     # asyncio.create_task(run_send_emails_regularly())
     try:
         await redis_manager.connect()
+        FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+        logger.info("cache_backend=redis")
     except InfrastructureError:
-        logger.warning("Redis is unavailable. API is starting without Redis.", exc_info=True)
-    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+        logger.warning("Redis is unavailable. Using in-memory cache.", exc_info=True)
+        FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+        logger.info("cache_backend=memory")
     yield
     await redis_manager.disconnect()
     logger.info("application_stopped")

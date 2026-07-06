@@ -85,6 +85,16 @@ docker compose down -v
 
 The API exposes `GET /health` for liveness, `GET /health/db` for PostgreSQL, and `GET /health/redis` for Redis. Docker Compose marks the API container healthy through `/health`.
 
+## Cache
+
+Read endpoints such as `GET /hotels` and `GET /facilities` use Redis-backed cache in Docker. If Redis is unavailable during local development, the app falls back to in-memory cache.
+
+Inspect demo cache keys:
+
+```powershell
+docker compose exec redis redis-cli keys "*"
+```
+
 ## Demo Flow
 
 After `docker compose up --build`, open Swagger at `http://localhost:8888/docs` and run:
