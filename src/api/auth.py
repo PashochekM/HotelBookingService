@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Response
 
-from src.api.dependencies import AuthServiceDep, UserIdDep
+from src.api.dependencies import AuthServiceDep, CurrentUserDep
 from src.schemas.responses import DataResponse, TokenResponse
 from src.schemas.users import User, UserRequestAdd
 
@@ -18,7 +18,14 @@ async def register_user(
                     "email": "contact@mail.com",
                     "password": "pass",
                 },
-            }
+            },
+            "2": {
+                "summary": "admin_user",
+                "value": {
+                    "email": "admin@mail.com",
+                    "password": "12345",
+                },
+            },
         }
     ),
 ):
@@ -38,7 +45,14 @@ async def login_user(
                     "email": "contact@mail.com",
                     "password": "pass",
                 },
-            }
+            },
+            "2": {
+                "summary": "admin_user",
+                "value": {
+                    "email": "admin@mail.com",
+                    "password": "12345",
+                },
+            },
         }
     ),
 ):
@@ -49,11 +63,9 @@ async def login_user(
 
 @router.get("/me", response_model=DataResponse[User])
 async def get_me(
-    auth_service: AuthServiceDep,
-    user_id: UserIdDep,
+    current_user: CurrentUserDep,
 ):
-    user = await auth_service.get_user(user_id)
-    return {"data": user}
+    return {"data": current_user}
 
 
 @router.post("/logout", response_model=DataResponse[None])

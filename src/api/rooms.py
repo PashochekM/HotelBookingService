@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body
 
-from src.api.dependencies import DateRangeDep, RoomsServiceDep
+from src.api.dependencies import AdminDep, DateRangeDep, RoomsServiceDep
 from src.schemas.responses import DataResponse
 from src.schemas.rooms import Room, RoomRequestAdd, RoomRequestPATCH, RoomWithRels
 
@@ -25,6 +25,7 @@ async def get_rooms(
 async def create_room(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
+    _admin: AdminDep,
     room_data: RoomRequestAdd = Body(
         openapi_examples={
             "1": {
@@ -69,6 +70,7 @@ async def edit_hotel(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
     room_id: int,
+    _admin: AdminDep,
     room_data: RoomRequestAdd = Body(
         openapi_examples={
             "1": {
@@ -99,7 +101,7 @@ async def edit_hotel(
 
 
 @router.delete("/{hotel_id}/rooms/{room_id}", response_model=DataResponse[None])
-async def delete_room(rooms_service: RoomsServiceDep, hotel_id: int, room_id: int):
+async def delete_room(rooms_service: RoomsServiceDep, hotel_id: int, room_id: int, _admin: AdminDep):
     await rooms_service.delete_room(hotel_id, room_id)
     return {"data": None}
 
@@ -109,6 +111,7 @@ async def partially_edit_room(
     rooms_service: RoomsServiceDep,
     hotel_id: int,
     room_id: int,
+    _admin: AdminDep,
     room_data: RoomRequestPATCH = Body(
         openapi_examples={
             "1": {

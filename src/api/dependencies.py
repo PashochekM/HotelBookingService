@@ -5,7 +5,8 @@ from fastapi import Depends, Query, Request
 from pydantic import BaseModel
 
 from src.db import async_session_maker
-from src.exceptions import InvalidBookingDatesError, InvalidTokenError
+from src.exceptions import ForbiddenError, InvalidBookingDatesError, InvalidTokenError
+from src.schemas.users import User
 from src.services.auth import AuthService
 from src.services.bookings import BookingsService
 from src.services.facilities import FacilitiesService
@@ -67,6 +68,25 @@ async def get_db():
 
 
 DBDep = Annotated[DBManager, Depends(get_db)]
+
+
+async def get_current_user(user_id: UserIdDep, db: DBDep) -> User:
+    user = await db.users.get_one_or_none(id=user_id)
+    if user is None:
+        raise InvalidTokenError("User not found")
+    return user
+
+
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+def require_admin(current_user: CurrentUserDep) -> User:
+    if current_user.role != "admin":
+        raise ForbiddenError("Admin privileges required")
+    return current_user
+
+
+AdminDep = Annotated[User, Depends(require_admin)]
 
 
 def get_auth_service(db: DBDep) -> AuthService:

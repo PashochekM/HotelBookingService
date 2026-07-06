@@ -38,6 +38,10 @@ class InvalidTokenError(AppError):
     default_message = "Invalid token"
 
 
+class ForbiddenError(AppError):
+    default_message = "Forbidden"
+
+
 class TokenExpiredError(AppError):
     default_message = "Token has expired"
 

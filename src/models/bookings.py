@@ -14,8 +14,8 @@ class BookingsOrm(Base):
     room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
     date_from: Mapped[date]
     date_to: Mapped[date]
-    price: Mapped[int]
+    price: Mapped[float]
 
     @hybrid_property
-    def total_cost(self) -> int:
+    def total_cost(self) -> float:
         return self.price * (self.date_to - self.date_from).days

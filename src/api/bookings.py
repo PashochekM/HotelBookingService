@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body
 
-from src.api.dependencies import BookingsServiceDep, UserIdDep
+from src.api.dependencies import AdminDep, BookingsServiceDep, CurrentUserDep
 from src.schemas.bookings import Booking, BookingRequestAdd
 from src.schemas.responses import DataResponse
 
@@ -9,16 +9,17 @@ router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 @router.get("/me", response_model=DataResponse[list[Booking]])
 async def get_own_bookings(
-    user_id: UserIdDep,
+    current_user: CurrentUserDep,
     bookings_service: BookingsServiceDep,
 ):
-    result = await bookings_service.get_own_bookings(user_id)
+    result = await bookings_service.get_own_bookings(current_user.id)
     return {"data": result}
 
 
 @router.get("", response_model=DataResponse[list[Booking]])
 async def get_all_bookings(
     bookings_service: BookingsServiceDep,
+    _admin: AdminDep,
 ):
     result = await bookings_service.get_all_bookings()
     return {"data": result}
@@ -26,7 +27,7 @@ async def get_all_bookings(
 
 @router.post("", response_model=DataResponse[Booking])
 async def create_booking(
-    user_id: UserIdDep,
+    current_user: CurrentUserDep,
     bookings_service: BookingsServiceDep,
     book_data: BookingRequestAdd = Body(
         openapi_examples={
@@ -51,5 +52,5 @@ async def create_booking(
         }
     ),
 ):
-    result = await bookings_service.create_booking(user_id, book_data)
+    result = await bookings_service.create_booking(current_user.id, book_data)
     return {"data": result}

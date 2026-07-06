@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, BackgroundTasks
 
-from src.api.dependencies import ImagesServiceDep
+from src.api.dependencies import AdminDep, ImagesServiceDep
 from src.schemas.responses import DataResponse, UploadedImageResponse
 from src.tasks.tasks import resize_image
 
@@ -12,6 +12,7 @@ def upload_image(
     file: UploadFile,
     background_tasks: BackgroundTasks,
     images_service: ImagesServiceDep,
+    _admin: AdminDep,
 ):
     uploaded_image = images_service.upload_image(file)
     # resize_image.delay(image_path)

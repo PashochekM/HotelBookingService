@@ -3,11 +3,13 @@ from datetime import date
 from pydantic import PositiveInt, model_validator
 
 
-class BookingRequestAdd(BaseModel):
+class BookingBase(BaseModel):
     room_id: PositiveInt
     date_from: date
     date_to: date
 
+
+class BookingRequestAdd(BookingBase):
     @model_validator(mode="after")
     def validate_dates(self):
         if self.date_to <= self.date_from:
@@ -17,18 +19,20 @@ class BookingRequestAdd(BaseModel):
 
 class BookingAdd(BookingRequestAdd):
     user_id: PositiveInt
-    price: int = Field(gt=0)
+    price: float = Field(gt=0)
 
 
-class Booking(BookingAdd):
+class Booking(BookingBase):
     id: int
+    user_id: int
+    price: float
 
 
 class BookingPATCH(BaseModel):
     room_id: PositiveInt | None = Field(None)
     date_from: date | None = Field(None)
     date_to: date | None = Field(None)
-    price: int | None = Field(None, gt=0)
+    price: float | None = Field(None, gt=0)
 
     @model_validator(mode="after")
     def validate_dates(self):

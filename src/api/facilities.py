@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 
-from src.api.dependencies import FacilitiesServiceDep
+from src.api.dependencies import AdminDep, FacilitiesServiceDep
 from src.schemas.facilities import Facility, FacilityAdd
 from src.schemas.responses import DataResponse
 
@@ -16,7 +16,7 @@ async def get_facilities(facilities_service: FacilitiesServiceDep):
 
 
 @router.post("", response_model=DataResponse[Facility])
-async def create_facility(facilities_service: FacilitiesServiceDep, facility_data: FacilityAdd):
+async def create_facility(facilities_service: FacilitiesServiceDep, facility_data: FacilityAdd, _admin: AdminDep):
     result = await facilities_service.create_facility(facility_data)
 
     # test_task.delay()

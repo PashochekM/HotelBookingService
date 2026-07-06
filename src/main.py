@@ -22,6 +22,7 @@ from src.api.images import router as images_router
 from src.config import settings
 from src.exceptions import (
     DatabaseIntegrityError,
+    ForbiddenError,
     InfrastructureError,
     InvalidBookingDatesError,
     InvalidCredentialsError,
@@ -113,6 +114,12 @@ async def invalid_token_handler(request: Request, exc: InvalidTokenError):
         content={"detail": exc.message},
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+
+@app.exception_handler(ForbiddenError)
+async def forbidden_handler(request: Request, exc: ForbiddenError):
+    logger.warning("forbidden path=%s detail=%s", request.url.path, exc.message)
+    return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": exc.message})
 
 
 @app.exception_handler(TokenExpiredError)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query, Body
 from fastapi_cache.decorator import cache
 
-from src.api.dependencies import DateRangeDep, HotelsServiceDep, PaginationDep
+from src.api.dependencies import AdminDep, DateRangeDep, HotelsServiceDep, PaginationDep
 from src.schemas.hotels import Hotel, HotelAdd, HotelPATCH
 from src.schemas.responses import DataResponse
 
@@ -11,6 +11,7 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.post("", response_model=DataResponse[Hotel])
 async def create_hotel(
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
     hotel_data: HotelAdd = Body(
         openapi_examples={
             "1": {
@@ -62,6 +63,7 @@ async def edit_hotel(
     hotel_id: int,
     hotel_data: HotelAdd,
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
 ):
     await hotels_service.edit_hotel(hotel_id, hotel_data)
     return {"data": None}
@@ -71,6 +73,7 @@ async def edit_hotel(
 async def delete_hotel(
     hotel_id: int,
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
 ):
     await hotels_service.delete_hotel(hotel_id)
     return {"data": None}
@@ -81,6 +84,7 @@ async def partially_edit_hotel(
     hotel_id: int,
     hotel_data: HotelPATCH,
     hotels_service: HotelsServiceDep,
+    _admin: AdminDep,
 ):
     await hotels_service.partially_edit_hotel(hotel_id, hotel_data)
     return {"data": None}

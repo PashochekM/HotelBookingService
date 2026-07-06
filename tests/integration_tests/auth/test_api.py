@@ -50,6 +50,7 @@ async def test_register_login_logout(email, password, setup_hotels_rooms_data, a
     response = await ac.get("/auth/me")
     assert response.status_code == 200
     assert response.json()["data"]["email"] == email
+    assert response.json()["data"]["role"] == "user"
 
     response = await ac.post("/auth/logout")
     assert response.json() == {"data": None}
