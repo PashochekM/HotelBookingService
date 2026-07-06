@@ -26,6 +26,10 @@ class RoomNotAvailableError(AppError):
     default_message = "Room is not available for the selected dates"
 
 
+class BookingAlreadyCancelledError(AppError):
+    default_message = "Booking is already cancelled"
+
+
 class InvalidBookingDatesError(AppError):
     default_message = "date_to must be later than date_from"
 

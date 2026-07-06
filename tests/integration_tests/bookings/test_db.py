@@ -1,6 +1,10 @@
 from datetime import date
 
+import pytest
+
+from src.exceptions import ObjectAlreadyExistsError
 from src.schemas.bookings import BookingAdd
+from src.schemas.facilities import FacilityAdd, RoomFacilityAdd
 
 
 async def test_add_booking(db):
@@ -20,3 +24,15 @@ async def test_add_booking(db):
 
     assert get_data is not None
     assert get_data == real_data
+
+
+async def test_duplicate_room_facility_is_rejected(db):
+    room_id = (await db.rooms.get_all())[0].id
+    facility = await db.facilities.add_one(FacilityAdd(title="Duplicate relation test facility"))
+    relation = RoomFacilityAdd(room_id=room_id, facility_id=facility.id)
+    await db.rooms_facilities.add_bulk([relation])
+    await db.commit()
+
+    with pytest.raises(ObjectAlreadyExistsError):
+        await db.rooms_facilities.add_bulk([relation])
+        await db.commit()

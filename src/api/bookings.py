@@ -54,3 +54,13 @@ async def create_booking(
 ):
     result = await bookings_service.create_booking(current_user.id, book_data)
     return {"data": result}
+
+
+@router.patch("/{booking_id}/cancel", response_model=DataResponse[Booking])
+async def cancel_booking(
+    booking_id: int,
+    current_user: CurrentUserDep,
+    bookings_service: BookingsServiceDep,
+):
+    result = await bookings_service.cancel_booking(booking_id, current_user)
+    return {"data": result}

@@ -1,6 +1,9 @@
-from pydantic import BaseModel, Field
 from datetime import date
-from pydantic import PositiveInt, model_validator
+from typing import Literal
+
+from pydantic import BaseModel, Field, PositiveInt, model_validator
+
+BookingStatus = Literal["active", "cancelled"]
 
 
 class BookingBase(BaseModel):
@@ -20,12 +23,18 @@ class BookingRequestAdd(BookingBase):
 class BookingAdd(BookingRequestAdd):
     user_id: PositiveInt
     price: float = Field(gt=0)
+    status: BookingStatus = "active"
 
 
 class Booking(BookingBase):
     id: int
     user_id: int
     price: float
+    status: BookingStatus
+
+
+class BookingStatusUpdate(BaseModel):
+    status: BookingStatus
 
 
 class BookingPATCH(BaseModel):

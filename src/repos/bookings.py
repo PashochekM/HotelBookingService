@@ -1,12 +1,18 @@
 import logging
 from datetime import date
 
-from sqlalchemy import select, insert
+from sqlalchemy import insert, select, update
 from sqlalchemy.exc import IntegrityError
 
 from src.models.bookings import BookingsOrm
 from src.models.rooms import RoomsOrm
-from src.exceptions import DatabaseIntegrityError, InvalidBookingDatesError, RelatedObjectNotFoundError, RoomNotAvailableError
+from src.exceptions import (
+    DatabaseIntegrityError,
+    InvalidBookingDatesError,
+    ObjectNotFoundError,
+    RelatedObjectNotFoundError,
+    RoomNotAvailableError,
+)
 from src.repos.base import BaseRepository
 from src.repos.mappers.mappers import BookingDataMapper
 from src.repos.utils import rooms_ids_for_booking
@@ -20,9 +26,20 @@ class BookingsRepository(BaseRepository):
     mapper = BookingDataMapper
 
     async def get_bookings_with_today_checkin(self):
-        query = select(self.model).filter(self.model.date_from == date.today())
+        query = select(self.model).filter(
+            self.model.date_from == date.today(),
+            self.model.status == "active",
+        )
         res = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()]
+
+    async def update_status(self, booking_id: int, status: str) -> Booking:
+        stmt = update(self.model).filter_by(id=booking_id).values(status=status).returning(self.model)
+        result = await self.session.execute(stmt)
+        res = result.scalars().one_or_none()
+        if res is None:
+            raise ObjectNotFoundError("Booking not found")
+        return self.mapper.map_to_domain_entity(res)
 
     async def add_booking(self, data: BookingAdd) -> Booking:
         if data.date_to <= data.date_from:

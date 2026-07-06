@@ -21,6 +21,7 @@ from src.api.facilities import router as facilities_router
 from src.api.images import router as images_router
 from src.config import settings
 from src.exceptions import (
+    BookingAlreadyCancelledError,
     DatabaseIntegrityError,
     ForbiddenError,
     InfrastructureError,
@@ -91,6 +92,12 @@ async def object_already_exists_handler(request: Request, exc: ObjectAlreadyExis
 @app.exception_handler(RoomNotAvailableError)
 async def room_not_available_handler(request: Request, exc: RoomNotAvailableError):
     logger.info("room_not_available path=%s detail=%s", request.url.path, exc.message)
+    return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": exc.message})
+
+
+@app.exception_handler(BookingAlreadyCancelledError)
+async def booking_already_cancelled_handler(request: Request, exc: BookingAlreadyCancelledError):
+    logger.info("booking_already_cancelled path=%s detail=%s", request.url.path, exc.message)
     return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": exc.message})
 
 

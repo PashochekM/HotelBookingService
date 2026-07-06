@@ -23,6 +23,7 @@ def test_booking_response_allows_legacy_equal_dates():
         date_from=date(2026, 4, 23),
         date_to=date(2026, 4, 23),
         price=3000.0,
+        status="active",
     )
 
     assert booking.date_from == booking.date_to
