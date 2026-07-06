@@ -1,7 +1,7 @@
 import logging
 
 from pydantic import BaseModel
-from sqlalchemy import select, insert, delete, update
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.exc import IntegrityError
 
 from src.exceptions import DatabaseIntegrityError, ObjectAlreadyExistsError, ObjectNotFoundError, RelatedObjectNotFoundError

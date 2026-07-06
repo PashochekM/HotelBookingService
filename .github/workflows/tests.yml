@@ -45,19 +45,23 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
 
       - name: Create env files
         run: |
           cp .env.test.example .env.test
           cp .env.docker.example .env.docker
 
-      - name: Validate Docker Compose config
-        run: docker compose config
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Run linters
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
 
       - name: Compile sources
         run: python -m compileall src tests
@@ -67,3 +71,9 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+      - name: Validate Docker Compose config
+        run: docker compose config
+
+      - name: Build Docker image
+        run: docker build -t hotel-booking-service:ci .

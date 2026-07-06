@@ -6,11 +6,11 @@ from unittest import mock
 mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
 
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from src.api.dependencies import get_db
 from src.config import settings
-from src.db import Base, engine_null_pool, async_session_maker_null_pool
+from src.db import Base, async_session_maker_null_pool, engine_null_pool
 from src.main import app
 from src.models import *  # noqa
 from src.schemas.users import UserAdd
@@ -52,10 +52,10 @@ async def setup_database(check_test_mode):
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def setup_hotels_rooms_data(setup_database, admin_ac):
-    with open(TESTS_DIR / "mock_hotels.json", "r", encoding="utf-8") as f:
+    with open(TESTS_DIR / "mock_hotels.json", encoding="utf-8") as f:
         hotel_data = json.load(f)
 
-    with open(TESTS_DIR / "mock_rooms.json", "r", encoding="utf-8") as f:
+    with open(TESTS_DIR / "mock_rooms.json", encoding="utf-8") as f:
         room_data = json.load(f)
 
     for hotel in hotel_data:

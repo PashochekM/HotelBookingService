@@ -1,5 +1,5 @@
-from typing import Annotated
 from datetime import date
+from typing import Annotated
 
 from fastapi import Depends, Query, Request
 from pydantic import BaseModel

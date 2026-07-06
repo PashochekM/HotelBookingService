@@ -1,8 +1,9 @@
 from datetime import date
 
+from sqlalchemy import CheckConstraint, ForeignKey, String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import CheckConstraint, ForeignKey, String
+
 from src.db import Base
 
 

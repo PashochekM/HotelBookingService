@@ -62,9 +62,7 @@ async def test_add_booking(room_id, date_from, date_to, status_code, auth_ac, db
         (2, "2021-01-01", "2021-02-01", 3),
     ],
 )
-async def test_add_and_get_my_bookings(
-    room_id, date_from, date_to, count_booking, auth_ac, clear_booking_db
-):
+async def test_add_and_get_my_bookings(room_id, date_from, date_to, count_booking, auth_ac, clear_booking_db):
     response = await auth_ac.post(
         "/bookings",
         json={

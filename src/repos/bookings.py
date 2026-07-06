@@ -4,8 +4,6 @@ from datetime import date
 from sqlalchemy import insert, select, update
 from sqlalchemy.exc import IntegrityError
 
-from src.models.bookings import BookingsOrm
-from src.models.rooms import RoomsOrm
 from src.exceptions import (
     DatabaseIntegrityError,
     InvalidBookingDatesError,
@@ -13,10 +11,12 @@ from src.exceptions import (
     RelatedObjectNotFoundError,
     RoomNotAvailableError,
 )
+from src.models.bookings import BookingsOrm
+from src.models.rooms import RoomsOrm
 from src.repos.base import BaseRepository
 from src.repos.mappers.mappers import BookingDataMapper
 from src.repos.utils import rooms_ids_for_booking
-from src.schemas.bookings import BookingAdd, Booking
+from src.schemas.bookings import Booking, BookingAdd
 
 logger = logging.getLogger(__name__)
 

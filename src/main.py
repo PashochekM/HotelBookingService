@@ -5,22 +5,21 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.backends.redis import RedisBackend
 from starlette import status
 
 from src import redis_manager
+from src.api.auth import router as auth_router
+from src.api.bookings import router as bookings_router
 from src.api.dependencies import get_db
+from src.api.facilities import router as facilities_router
 from src.api.health import router as health_router
 from src.api.hotels import router as hotels_router
-from src.api.middlewares import request_logging_middleware
-from src.api.auth import router as auth_router
-from src.api.rooms import router as rooms_router
-from src.api.bookings import router as bookings_router
-from src.api.facilities import router as facilities_router
 from src.api.images import router as images_router
+from src.api.middlewares import request_logging_middleware
+from src.api.rooms import router as rooms_router
 from src.config import settings
 from src.exceptions import (
     BookingAlreadyCancelledError,

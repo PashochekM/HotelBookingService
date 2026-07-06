@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete, insert
+from sqlalchemy import delete, insert, select
 from sqlalchemy.exc import IntegrityError
 
 from src.exceptions import RelatedObjectNotFoundError
